@@ -36,6 +36,7 @@ jobs:
       DB_USER: postgres
       DB_PASSWORD: 1234
       DB_NAME: soldeamerica
+      DATABASE_URL: postgres://postgres:1234@postgres:5432/soldeamerica
 
     defaults:
       run:
