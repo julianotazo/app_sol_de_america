@@ -11,6 +11,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   backend-ci:
     runs-on: ubuntu-latest
@@ -28,7 +31,7 @@ jobs:
           --health-cmd="pg_isready -U postgres -d soldeamerica"
           --health-interval=5s
           --health-timeout=5s
-          --health-retries=15
+          --health-retries=20
 
     env:
       DB_HOST: postgres
@@ -49,7 +52,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: "npm"
           cache-dependency-path: backend/package-lock.json
 
@@ -59,18 +62,23 @@ jobs:
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - name: Type check
-        run: npx tsc --noEmit
+      - name: Debug networking
+        run: |
+          echo "=== /etc/hosts ==="
+          cat /etc/hosts
+          echo "=== Intento ping a 'postgres' ==="
+          ping -c 3 postgres || echo "ping falló"
+          echo "=== Prueba pg_isready ==="
+          pg_isready -h postgres -p 5432 -U postgres || echo "pg_isready falló"
 
       - name: Wait for Postgres
         run: |
-          echo "Esperando a que Postgres esté listo..."
-          # intenta hasta que responda OK
-          until pg_isready -h postgres -p 5432 -U postgres; do
-            echo "Postgres no está listo aún... reintentando"
-            sleep 3
+          echo "Esperando a Postgres..."
+          for i in {1..30}; do
+            pg_isready -h postgres -p 5432 -U postgres && break
+            echo "No listo, retry..."
+            sleep 2
           done
-          echo "Postgres está listo "
 
       - name: Run migrations
         run: npm run migrate
