@@ -18,6 +18,9 @@ jobs:
   backend-ci:
     runs-on: ubuntu-latest
 
+    container:
+      image: node:20
+
     services:
       postgres:
         image: postgres:16
@@ -49,26 +52,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-          cache-dependency-path: backend/package-lock.json
-
       - name: Install dependencies
         run: npm ci
 
       - name: Install PostgreSQL client
-        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+        run: |
+          apt-get update
+          apt-get install -y postgresql-client
+
+      - name: Type check
+        run: npx tsc --noEmit
 
       - name: Debug networking
         run: |
           echo "=== /etc/hosts ==="
           cat /etc/hosts
-          echo "=== Intento ping a 'postgres' ==="
+          echo "=== Intento ping a postgres ==="
           ping -c 3 postgres || echo "ping falló"
-          echo "=== Prueba pg_isready ==="
+          echo "=== pg_isready ==="
           pg_isready -h postgres -p 5432 -U postgres || echo "pg_isready falló"
 
       - name: Wait for Postgres
@@ -79,6 +80,7 @@ jobs:
             echo "No listo, retry..."
             sleep 2
           done
+          echo "Postgres está listo"
 
       - name: Run migrations
         run: npm run migrate
