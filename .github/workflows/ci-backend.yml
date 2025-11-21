@@ -60,18 +60,6 @@ jobs:
           apt-get update
           apt-get install -y postgresql-client
 
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Debug networking
-        run: |
-          echo "=== /etc/hosts ==="
-          cat /etc/hosts
-          echo "=== Intento ping a postgres ==="
-          ping -c 3 postgres || echo "ping falló"
-          echo "=== pg_isready ==="
-          pg_isready -h postgres -p 5432 -U postgres || echo "pg_isready falló"
-
       - name: Wait for Postgres
         run: |
           echo "Esperando a Postgres..."
@@ -82,11 +70,14 @@ jobs:
           done
           echo "Postgres está listo"
 
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npx prettier --check .
+
       - name: Run migrations
         run: npm run migrate
 
       - name: Run tests
         run: npm test
-
-      - name: Build project
-        run: npm run build

@@ -2,22 +2,7 @@ import { pool } from '../../config/db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-type RegisterDTO = {
-  email: string;
-  password: string;
-  dni: string;
-  first_name: string;
-  last_name: string;
-  birth_date?: string;
-  phone?: string;
-  address?: string;
-  branch_id?: number;
-  role_id?: number;
-};
-
-type LoginDTO = { email: string; password: string };
-
-export async function registerUser(data: RegisterDTO) {
+export async function registerUser(data) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -68,7 +53,7 @@ export async function registerUser(data: RegisterDTO) {
   }
 }
 
-export async function loginUser({ email, password }: LoginDTO) {
+export async function loginUser({ email, password }) {
   // buscamos por email en USERS y traemos el hash desde AUTH_LOCAL
   const credRes = await pool.query(
     `SELECT 

@@ -14,4 +14,3 @@ app.use(morgan('dev'));
 app.use('/api/auth', authRoutes);
 
 app.use(errorMiddleware);
-

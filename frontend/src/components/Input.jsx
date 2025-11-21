@@ -1,8 +1,4 @@
-import { InputHTMLAttributes } from 'react'
-
-type Props = InputHTMLAttributes<HTMLInputElement> & { label?: string }
-
-export default function Input({ label, ...props }: Props) {
+export default function Input({ label, ...props }) {
   return (
     <label style={{ display: 'block', marginBottom: 12 }}>
       {label && <div style={{ marginBottom: 4 }}>{label}</div>}
@@ -12,9 +8,9 @@ export default function Input({ label, ...props }: Props) {
           width: '100%',
           padding: '10px 12px',
           border: '1px solid #ccc',
-          borderRadius: 8,
+          borderRadius: 8
         }}
       />
     </label>
-  )
+  );
 }

@@ -1,4 +1,3 @@
-import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 
 const registerSchema = z.object({
@@ -21,8 +20,8 @@ const loginSchema = z.object({
   password: z.string().min(6),
 });
 
-export function validate(type: 'register' | 'login') {
-  return (req: Request, res: Response, next: NextFunction) => {
+export function validate(type) {
+  return (req, res, next) => {
     try {
       const schema = type === 'register' ? registerSchema : loginSchema;
       req.body = schema.parse(req.body);

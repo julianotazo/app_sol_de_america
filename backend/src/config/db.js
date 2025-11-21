@@ -5,8 +5,7 @@ export const pool = new Pool({
   connectionString: env.DATABASE_URL,
 });
 
-pool.on('error', (err: unknown) => {
-  // tipado seguro
+pool.on('error', (err) => {
   if (err instanceof Error) {
     console.error('Error inesperado en el pool PG:', err.message);
   } else {
