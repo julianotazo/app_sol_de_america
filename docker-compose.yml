@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: soldeamerica
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      # Si tenés un seed.sql y querés cargar datos iniciales, descomentá esta línea:
+      # - ./db/seed.sql:/docker-entrypoint-initdb.d/00-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d soldeamerica"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:1234@db:5432/soldeamerica
+      PORT: 3000
+      JWT_SECRET: supersecret-dev
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      # Desde el navegador, el backend se ve en localhost:3000
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "5173:5173"
+
+volumes:
+  dbdata:

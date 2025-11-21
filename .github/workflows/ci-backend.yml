@@ -1,1 +1,83 @@
+name: CI Backend
 
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/auth
+
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  backend-ci:
+    runs-on: ubuntu-latest
+
+    container:
+      image: node:20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 1234
+          POSTGRES_DB: soldeamerica
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d soldeamerica"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: 1234
+      DB_NAME: soldeamerica
+      DATABASE_URL: postgres://postgres:1234@postgres:5432/soldeamerica
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install PostgreSQL client
+        run: |
+          apt-get update
+          apt-get install -y postgresql-client
+
+      - name: Wait for Postgres
+        run: |
+          echo "Esperando a Postgres..."
+          for i in {1..30}; do
+            pg_isready -h postgres -p 5432 -U postgres && break
+            echo "No listo, retry..."
+            sleep 2
+          done
+          echo "Postgres está listo"
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Run migrations
+        run: npm run migrate
+
+      - name: Run tests
+        run: npm test
