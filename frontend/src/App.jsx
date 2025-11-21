@@ -6,10 +6,23 @@ export default function App() {
   const [view, setView] = useState('login');
 
   return (
-    <div style={{ maxWidth: 420, margin: '40px auto', fontFamily: 'system-ui, sans-serif' }}>
+    <div
+      style={{
+        maxWidth: 420,
+        margin: '40px auto',
+        fontFamily: 'system-ui, sans-serif'
+      }}
+    >
       <h1 style={{ textAlign: 'center' }}>Club Sol de América</h1>
 
-      <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 20 }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: 12,
+          justifyContent: 'center',
+          marginBottom: 20
+        }}
+      >
         <button onClick={() => setView('login')}>Login</button>
         <button onClick={() => setView('register')}>Registro</button>
       </div>

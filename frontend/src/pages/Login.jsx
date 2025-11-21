@@ -12,6 +12,10 @@ export default function Login() {
   };
 
   return (
-    <AuthForm title="Iniciar sesión" onSubmit={onSubmit} submitText="Ingresar" />
+    <AuthForm
+      title="Iniciar sesión"
+      onSubmit={onSubmit}
+      submitText="Ingresar"
+    />
   );
 }

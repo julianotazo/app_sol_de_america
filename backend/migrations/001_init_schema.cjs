@@ -1,11 +1,11 @@
 exports.shorthands = {
   id: {
     type: 'serial',
-    primaryKey: true,
-  },
+    primaryKey: true
+  }
 };
 
-exports.up = pgm => {
+exports.up = (pgm) => {
   // USERS (antes persons)
   pgm.createTable('users', {
     id: 'id',
@@ -17,13 +17,13 @@ exports.up = pgm => {
     email: { type: 'varchar(180)', notNull: false },
     address: { type: 'varchar(200)' },
     created_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') },
-    updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') },
+    updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') }
   });
 
   pgm.addConstraint('users', 'users_dni_key', { unique: ['dni'] });
   // opcional pero recomendable: email único donde no sea null
   pgm.addConstraint('users', 'users_email_unique', {
-    unique: ['email'],
+    unique: ['email']
   });
 
   // BRANCHES
@@ -34,21 +34,21 @@ exports.up = pgm => {
     address: { type: 'varchar(200)' },
     phone: { type: 'varchar(30)' },
     created_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') },
-    updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') },
+    updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') }
   });
 
   // ROLES
   pgm.createTable('roles', {
     id: 'id',
     name: { type: 'varchar(50)', notNull: true },
-    description: { type: 'text' },
+    description: { type: 'text' }
   });
   pgm.addConstraint('roles', 'roles_name_key', { unique: ['name'] });
 
   // SPORTS
   pgm.createTable('sports', {
     id: 'id',
-    name: { type: 'varchar(100)', notNull: true },
+    name: { type: 'varchar(100)', notNull: true }
   });
   pgm.addConstraint('sports', 'sports_name_key', { unique: ['name'] });
 
@@ -59,17 +59,17 @@ exports.up = pgm => {
     sport_id: { type: 'integer', notNull: true },
     gender: { type: 'varchar(10)' },
     min_age: { type: 'integer' },
-    max_age: { type: 'integer' },
+    max_age: { type: 'integer' }
   });
 
   pgm.addConstraint('categories', 'categories_sport_id_fkey', {
     foreignKeys: {
       columns: 'sport_id',
-      references: 'sports(id)',
-    },
+      references: 'sports(id)'
+    }
   });
   pgm.addConstraint('categories', 'categories_gender_check', {
-    check: "gender IN ('Masculino', 'Femenino', 'Mixto')",
+    check: "gender IN ('Masculino', 'Femenino', 'Mixto')"
   });
 
   // CLUB_USERS (persona dentro del club)
@@ -82,27 +82,27 @@ exports.up = pgm => {
     join_date: { type: 'date', default: pgm.func('CURRENT_DATE') },
     notes: { type: 'text' },
     created_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') },
-    updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') },
+    updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') }
   });
 
   pgm.addConstraint('club_users', 'club_users_user_id_fkey', {
     foreignKeys: {
       columns: 'user_id',
       references: 'users(id)',
-      onDelete: 'CASCADE',
-    },
+      onDelete: 'CASCADE'
+    }
   });
   pgm.addConstraint('club_users', 'club_users_branch_id_fkey', {
     foreignKeys: {
       columns: 'branch_id',
-      references: 'branches(id)',
-    },
+      references: 'branches(id)'
+    }
   });
   pgm.addConstraint('club_users', 'club_users_role_id_fkey', {
     foreignKeys: {
       columns: 'role_id',
-      references: 'roles(id)',
-    },
+      references: 'roles(id)'
+    }
   });
 
   // MEMBERSHIP_STATUS (estado de cuotas por club_user)
@@ -111,18 +111,18 @@ exports.up = pgm => {
     user_id: { type: 'integer', notNull: true }, // aquí es club_users.id
     month_year: { type: 'varchar(7)', notNull: true },
     is_paid: { type: 'boolean', notNull: true, default: false },
-    updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') },
+    updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') }
   });
 
   pgm.addConstraint('membership_status', 'membership_status_user_id_fkey', {
     foreignKeys: {
       columns: 'user_id',
       references: 'club_users(id)',
-      onDelete: 'CASCADE',
-    },
+      onDelete: 'CASCADE'
+    }
   });
   pgm.addConstraint('membership_status', 'membership_status_uq_user_month', {
-    unique: ['user_id', 'month_year'],
+    unique: ['user_id', 'month_year']
   });
 
   // TEAMS
@@ -134,32 +134,32 @@ exports.up = pgm => {
     branch_id: { type: 'integer', notNull: true },
     coach_id: { type: 'integer' },
     created_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') },
-    updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') },
+    updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') }
   });
 
   pgm.addConstraint('teams', 'teams_sport_id_fkey', {
     foreignKeys: {
       columns: 'sport_id',
-      references: 'sports(id)',
-    },
+      references: 'sports(id)'
+    }
   });
   pgm.addConstraint('teams', 'teams_category_id_fkey', {
     foreignKeys: {
       columns: 'category_id',
-      references: 'categories(id)',
-    },
+      references: 'categories(id)'
+    }
   });
   pgm.addConstraint('teams', 'teams_branch_id_fkey', {
     foreignKeys: {
       columns: 'branch_id',
-      references: 'branches(id)',
-    },
+      references: 'branches(id)'
+    }
   });
   pgm.addConstraint('teams', 'teams_coach_id_fkey', {
     foreignKeys: {
       columns: 'coach_id',
-      references: 'club_users(id)',
-    },
+      references: 'club_users(id)'
+    }
   });
 
   // TEAM_PLAYERS
@@ -168,22 +168,22 @@ exports.up = pgm => {
     team_id: { type: 'integer', notNull: true },
     user_id: { type: 'integer', notNull: true }, // club_users.id
     joined_at: { type: 'date', default: pgm.func('CURRENT_DATE') },
-    status: { type: 'varchar(20)', default: 'ACTIVO' },
+    status: { type: 'varchar(20)', default: 'ACTIVO' }
   });
 
   pgm.addConstraint('team_players', 'team_players_team_id_fkey', {
     foreignKeys: {
       columns: 'team_id',
       references: 'teams(id)',
-      onDelete: 'CASCADE',
-    },
+      onDelete: 'CASCADE'
+    }
   });
   pgm.addConstraint('team_players', 'team_players_user_id_fkey', {
     foreignKeys: {
       columns: 'user_id',
       references: 'club_users(id)',
-      onDelete: 'CASCADE',
-    },
+      onDelete: 'CASCADE'
+    }
   });
 
   // AUTH_LOCAL (solo credenciales)
@@ -191,19 +191,19 @@ exports.up = pgm => {
     id: 'id',
     user_id: { type: 'integer', notNull: true },
     password_hash: { type: 'varchar(255)', notNull: true },
-    created_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') },
+    created_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') }
   });
 
   pgm.addConstraint('auth_local', 'auth_local_user_id_fkey', {
     foreignKeys: {
       columns: 'user_id',
       references: 'users(id)',
-      onDelete: 'CASCADE',
-    },
+      onDelete: 'CASCADE'
+    }
   });
 };
 
-exports.down = pgm => {
+exports.down = (pgm) => {
   // El orden inverso para respetar FKs
   pgm.dropTable('auth_local');
   pgm.dropTable('team_players');

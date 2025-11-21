@@ -20,7 +20,7 @@ export async function registerUser(data) {
         data.birth_date ?? null,
         data.phone ?? null,
         data.email,
-        data.address ?? null,
+        data.address ?? null
       ]
     );
     const user = userRes.rows[0];
@@ -79,7 +79,11 @@ export async function loginUser({ email, password }) {
   }
 
   const token = jwt.sign(
-    { sub: row.user_id, email: row.email, name: `${row.first_name} ${row.last_name}` },
+    {
+      sub: row.user_id,
+      email: row.email,
+      name: `${row.first_name} ${row.last_name}`
+    },
     process.env.JWT_SECRET || 'secret',
     { expiresIn: '2h' }
   );

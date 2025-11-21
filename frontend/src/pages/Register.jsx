@@ -21,8 +21,7 @@ export default function Register() {
   const [err, setErr] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handle = (k) => (e) =>
-    setForm({ ...form, [k]: e.target.value });
+  const handle = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -58,22 +57,64 @@ export default function Register() {
     <form onSubmit={onSubmit} style={{ maxWidth: 460, margin: '0 auto' }}>
       <h2>Crear cuenta</h2>
 
-      <Input label="Email" type="email" value={form.email} onChange={handle('email')} required />
-      <Input label="Contraseña" type="password" value={form.password} onChange={handle('password')} required />
+      <Input
+        label="Email"
+        type="email"
+        value={form.email}
+        onChange={handle('email')}
+        required
+      />
+      <Input
+        label="Contraseña"
+        type="password"
+        value={form.password}
+        onChange={handle('password')}
+        required
+      />
 
       <Input label="DNI" value={form.dni} onChange={handle('dni')} required />
-      <Input label="Nombre" value={form.first_name} onChange={handle('first_name')} required />
-      <Input label="Apellido" value={form.last_name} onChange={handle('last_name')} required />
+      <Input
+        label="Nombre"
+        value={form.first_name}
+        onChange={handle('first_name')}
+        required
+      />
+      <Input
+        label="Apellido"
+        value={form.last_name}
+        onChange={handle('last_name')}
+        required
+      />
 
-      <Input label="Fecha de nacimiento (YYYY-MM-DD)" value={form.birth_date} onChange={handle('birth_date')} />
+      <Input
+        label="Fecha de nacimiento (YYYY-MM-DD)"
+        value={form.birth_date}
+        onChange={handle('birth_date')}
+      />
       <Input label="Teléfono" value={form.phone} onChange={handle('phone')} />
-      <Input label="Dirección" value={form.address} onChange={handle('address')} />
+      <Input
+        label="Dirección"
+        value={form.address}
+        onChange={handle('address')}
+      />
 
       {/* opcionales si querés crear club_users */}
-      <Input label="Branch ID (opcional)" value={form.branch_id} onChange={handle('branch_id')} />
-      <Input label="Role ID (opcional)" value={form.role_id} onChange={handle('role_id')} />
+      <Input
+        label="Branch ID (opcional)"
+        value={form.branch_id}
+        onChange={handle('branch_id')}
+      />
+      <Input
+        label="Role ID (opcional)"
+        value={form.role_id}
+        onChange={handle('role_id')}
+      />
 
-      <button type="submit" disabled={loading} style={{ padding: '10px 14px', borderRadius: 8 }}>
+      <button
+        type="submit"
+        disabled={loading}
+        style={{ padding: '10px 14px', borderRadius: 8 }}
+      >
         {loading ? 'Registrando…' : 'Registrar'}
       </button>
 

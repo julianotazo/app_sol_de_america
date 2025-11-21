@@ -7,17 +7,17 @@ const registerSchema = z.object({
   dni: z.string().min(6),
   first_name: z.string().min(2),
   last_name: z.string().min(2),
-  birth_date: z.string().optional(),   // ISO date o vacío
+  birth_date: z.string().optional(), // ISO date o vacío
   phone: z.string().optional(),
   address: z.string().optional(),
 
   branch_id: z.number().int().optional(),
-  role_id: z.number().int().optional(),
+  role_id: z.number().int().optional()
 });
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(6)
 });
 
 export function validate(type) {

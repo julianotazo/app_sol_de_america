@@ -74,7 +74,7 @@ jobs:
         run: npm run lint
 
       - name: Check formatting
-        run: npx prettier --check .
+        run: npm run format:check
 
       - name: Run migrations
         run: npm run migrate
