@@ -9,6 +9,14 @@ on:
 permissions:
   contents: read
 
+env:
+  DB_HOST: postgres
+  DB_PORT: 5432
+  DB_USER: postgres
+  DB_PASSWORD: 1234
+  DB_NAME: soldeamerica
+  DATABASE_URL: postgres://postgres:1234@postgres:5432/soldeamerica
+
 jobs:
 
   build:
@@ -42,7 +50,6 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 1234
           POSTGRES_DB: soldeamerica
-          DATABASE_URL: postgres://postgres:1234@postgres:5432/soldeamerica
         ports:
           - 5432:5432
         options: >-
