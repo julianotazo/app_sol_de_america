@@ -2,7 +2,7 @@ name: CI Frontend
 
 on:
   push:
-    branches: [ main, develop, feature/auth ]
+    branches: [ main, develop, feature/auth, frontend ]
   pull_request:
     branches: [ main ]
 
