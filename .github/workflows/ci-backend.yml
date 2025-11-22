@@ -42,6 +42,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 1234
           POSTGRES_DB: soldeamerica
+          DATABASE_URL: postgres://postgres:1234@postgres:5432/soldeamerica
         ports:
           - 5432:5432
         options: >-
