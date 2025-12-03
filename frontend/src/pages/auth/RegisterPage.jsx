@@ -1,35 +1,34 @@
-import { useState } from "react";
-import { registerRequest } from "../../services/auth";
+import { useState } from 'react';
+import { registerRequest } from '../../services/auth';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
-    email: "",
-    password: "",
-    dni: "",
-    first_name: "",
-    last_name: "",
-    birth_date: "",
-    phone: "",
-    address: "",
-    branch_id: "",
-    role_id: "",
+    email: '',
+    password: '',
+    dni: '',
+    first_name: '',
+    last_name: '',
+    birth_date: '',
+    phone: '',
+    address: '',
+    branch_id: '',
+    role_id: ''
   });
 
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
-  const [err, setErr] = useState("");
+  const [msg, setMsg] = useState('');
+  const [err, setErr] = useState('');
 
   const handleChange = (key) => (e) => {
     setForm({ ...form, [key]: e.target.value });
-    console.log("RegisterPage se cargó");
-
+    console.log('RegisterPage se cargó');
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMsg("");
-    setErr("");
+    setMsg('');
+    setErr('');
 
     try {
       const payload = {
@@ -40,7 +39,7 @@ export default function RegisterPage() {
         last_name: form.last_name,
         birth_date: form.birth_date || undefined,
         phone: form.phone || undefined,
-        address: form.address || undefined,
+        address: form.address || undefined
       };
 
       if (form.branch_id) payload.branch_id = Number(form.branch_id);
@@ -48,24 +47,22 @@ export default function RegisterPage() {
 
       await registerRequest(payload);
 
-      setMsg("Registro exitoso 🎉 Ahora podés iniciar sesión.");
+      setMsg('Registro exitoso 🎉 Ahora podés iniciar sesión.');
       setForm({
-        email: "",
-        password: "",
-        dni: "",
-        first_name: "",
-        last_name: "",
-        birth_date: "",
-        phone: "",
-        address: "",
-        branch_id: "",
-        role_id: "",
+        email: '',
+        password: '',
+        dni: '',
+        first_name: '',
+        last_name: '',
+        birth_date: '',
+        phone: '',
+        address: '',
+        branch_id: '',
+        role_id: ''
       });
     } catch (error) {
       setErr(
-        error?.response?.data?.error ||
-          error?.message ||
-          "Error inesperado 😢"
+        error?.response?.data?.error || error?.message || 'Error inesperado 😢'
       );
     } finally {
       setLoading(false);
@@ -88,7 +85,7 @@ export default function RegisterPage() {
           <input
             type="email"
             value={form.email}
-            onChange={handleChange("email")}
+            onChange={handleChange('email')}
             className="mt-1 p-2 w-full border rounded"
             required
           />
@@ -100,7 +97,7 @@ export default function RegisterPage() {
           <input
             type="password"
             value={form.password}
-            onChange={handleChange("password")}
+            onChange={handleChange('password')}
             className="mt-1 p-2 w-full border rounded"
             required
           />
@@ -111,7 +108,7 @@ export default function RegisterPage() {
           <span className="text-gray-700">DNI</span>
           <input
             value={form.dni}
-            onChange={handleChange("dni")}
+            onChange={handleChange('dni')}
             className="mt-1 p-2 w-full border rounded"
             required
           />
@@ -122,7 +119,7 @@ export default function RegisterPage() {
           <span className="text-gray-700">Nombre</span>
           <input
             value={form.first_name}
-            onChange={handleChange("first_name")}
+            onChange={handleChange('first_name')}
             className="mt-1 p-2 w-full border rounded"
             required
           />
@@ -133,7 +130,7 @@ export default function RegisterPage() {
           <span className="text-gray-700">Apellido</span>
           <input
             value={form.last_name}
-            onChange={handleChange("last_name")}
+            onChange={handleChange('last_name')}
             className="mt-1 p-2 w-full border rounded"
             required
           />
@@ -145,7 +142,7 @@ export default function RegisterPage() {
           <input
             type="date"
             value={form.birth_date}
-            onChange={handleChange("birth_date")}
+            onChange={handleChange('birth_date')}
             className="mt-1 p-2 w-full border rounded"
           />
         </label>
@@ -155,7 +152,7 @@ export default function RegisterPage() {
           <span className="text-gray-700">Teléfono</span>
           <input
             value={form.phone}
-            onChange={handleChange("phone")}
+            onChange={handleChange('phone')}
             className="mt-1 p-2 w-full border rounded"
           />
         </label>
@@ -165,7 +162,7 @@ export default function RegisterPage() {
           <span className="text-gray-700">Dirección</span>
           <input
             value={form.address}
-            onChange={handleChange("address")}
+            onChange={handleChange('address')}
             className="mt-1 p-2 w-full border rounded"
           />
         </label>
@@ -175,7 +172,7 @@ export default function RegisterPage() {
           <span className="text-gray-700">Branch ID (opcional)</span>
           <input
             value={form.branch_id}
-            onChange={handleChange("branch_id")}
+            onChange={handleChange('branch_id')}
             className="mt-1 p-2 w-full border rounded"
           />
         </label>
@@ -184,7 +181,7 @@ export default function RegisterPage() {
           <span className="text-gray-700">Role ID (opcional)</span>
           <input
             value={form.role_id}
-            onChange={handleChange("role_id")}
+            onChange={handleChange('role_id')}
             className="mt-1 p-2 w-full border rounded"
           />
         </label>
@@ -195,7 +192,7 @@ export default function RegisterPage() {
           disabled={loading}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold transition"
         >
-          {loading ? "Registrando..." : "Registrarse"}
+          {loading ? 'Registrando...' : 'Registrarse'}
         </button>
 
         {msg && <p className="mt-4 text-green-600">{msg}</p>}

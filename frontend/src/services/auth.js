@@ -1,16 +1,16 @@
-import api from "./api";
+import api from './api';
 
 export async function loginRequest(email, password) {
-  const res = await api.post("/auth/login", { email, password });
+  const res = await api.post('/auth/login', { email, password });
   return res.data; // { message, token }
 }
 
 export async function registerRequest(data) {
-  const res = await api.post("/auth/register", data);
+  const res = await api.post('/auth/register', data);
   return res.data;
 }
 
 export async function meRequest() {
-  const res = await api.get("/auth/me");
+  const res = await api.get('/auth/me');
   return res.data;
 }
