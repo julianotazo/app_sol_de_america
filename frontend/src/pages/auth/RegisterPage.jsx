@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { registerRequest } from '../../services/auth';
+import { getBranches, getRoles } from '../../services/catalogsService';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -15,14 +16,41 @@ export default function RegisterPage() {
     role_id: ''
   });
 
+  const [branches, setBranches] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingCatalogs, setLoadingCatalogs] = useState(false);
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
 
   const handleChange = (key) => (e) => {
     setForm({ ...form, [key]: e.target.value });
-    console.log('RegisterPage se cargó');
   };
+
+  // Carga de sedes y roles al montar el componente
+  useEffect(() => {
+    const fetchCatalogs = async () => {
+      try {
+        setLoadingCatalogs(true);
+        const [branchesData, rolesData] = await Promise.all([
+          getBranches(),
+          getRoles()
+        ]);
+
+        setBranches(branchesData);
+        setRoles(rolesData);
+      } catch (error) {
+        console.error('Error cargando catálogos:', error);
+        setErr(
+          'No se pudieron cargar las sedes y roles. Intenta recargar la página.'
+        );
+      } finally {
+        setLoadingCatalogs(false);
+      }
+    };
+
+    fetchCatalogs();
+  }, []);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -167,33 +195,56 @@ export default function RegisterPage() {
           />
         </label>
 
-        {/* CAMPOS OPCIONALES */}
+        {/* SEDE DEL CLUB */}
         <label className="block mb-3">
-          <span className="text-gray-700">Branch ID (opcional)</span>
-          <input
+          <span className="text-gray-700">Sede del club (opcional)</span>
+          <select
             value={form.branch_id}
             onChange={handleChange('branch_id')}
-            className="mt-1 p-2 w-full border rounded"
-          />
+            className="mt-1 p-2 w-full border rounded bg-white"
+            disabled={loadingCatalogs}
+          >
+            <option value="">Seleccionar sede...</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
         </label>
 
+        {/* ROL DE USUARIO */}
         <label className="block mb-6">
-          <span className="text-gray-700">Role ID (opcional)</span>
-          <input
+          <span className="text-gray-700">Rol de usuario (opcional)</span>
+          <select
             value={form.role_id}
             onChange={handleChange('role_id')}
-            className="mt-1 p-2 w-full border rounded"
-          />
+            className="mt-1 p-2 w-full border rounded bg-white"
+            disabled={loadingCatalogs}
+          >
+            <option value="">Seleccionar rol...</option>
+            {roles.map((role) => (
+              <option key={role.id} value={role.id}>
+                {role.name}
+              </option>
+            ))}
+          </select>
         </label>
 
         {/* BOTON */}
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold transition"
+          disabled={loading || loadingCatalogs}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold transition disabled:opacity-60"
         >
           {loading ? 'Registrando...' : 'Registrarse'}
         </button>
+
+        {loadingCatalogs && (
+          <p className="mt-2 text-sm text-gray-500">
+            Cargando sedes y roles...
+          </p>
+        )}
 
         {msg && <p className="mt-4 text-green-600">{msg}</p>}
         {err && <p className="mt-4 text-red-600">{err}</p>}

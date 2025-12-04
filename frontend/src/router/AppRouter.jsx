@@ -5,6 +5,7 @@ import RegisterPage from '../pages/auth/RegisterPage';
 
 import Layout from '../components/Layout';
 import PrivateRoute from './PrivateRoute';
+import AdminRoute from './AdminRoute';
 
 // Páginas del sistema
 import DashboardPage from '../pages/dashboard/DashboardPage';
@@ -20,7 +21,18 @@ export default function AppRouter() {
       <Routes>
         {/* RUTAS PÚBLICAS */}
         <Route path="/" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+
+        {/* REGISTER: solo admin logueado */}
+        <Route
+          path="/register"
+          element={
+            <PrivateRoute>
+              <AdminRoute>
+                <RegisterPage />
+              </AdminRoute>
+            </PrivateRoute>
+          }
+        />
 
         {/* RUTAS PRIVADAS (CON LAYOUT) */}
         <Route
