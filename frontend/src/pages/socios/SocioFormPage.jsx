@@ -6,11 +6,17 @@ import {
   obtenerSocio
 } from '../../services/sociosService';
 
+import { toast } from "sonner";
+
 export default function SocioFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const editando = Boolean(id);
+
+  const [loading, setLoading] = useState(true);   // carga inicial
+  const [guardando, setGuardando] = useState(false); // botón guardar
+  const [errors, setErrors] = useState({}); // validaciones
 
   const [form, setForm] = useState({
     nombre: '',
@@ -21,31 +27,75 @@ export default function SocioFormPage() {
     estado: 'activo'
   });
 
+  // Cargar socio si estamos editando
   useEffect(() => {
-    if (editando) {
-      obtenerSocio(id).then((data) => setForm(data));
+    async function cargar() {
+      try {
+        if (editando) {
+          const data = await obtenerSocio(id);
+          setForm(data);
+        }
+      } catch {
+        toast.error("Error cargando datos del socio.");
+      } finally {
+        setLoading(false);
+      }
     }
+    cargar();
   }, [id, editando]);
+
+  // Validaciones simples en vivo
+  const validate = () => {
+    const newErrors = {};
+
+    if (!form.nombre.trim()) newErrors.nombre = "El nombre es obligatorio.";
+    if (!form.dni.trim()) newErrors.dni = "El DNI es obligatorio.";
+    if (!/^\d+$/.test(form.dni)) newErrors.dni = "El DNI debe contener solo números.";
+    if (!form.nroSocio.trim()) newErrors.nroSocio = "El número de socio es obligatorio.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: null }); // limpiar error en vivo
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (editando) {
-      const resp = await editarSocio(id, form);
-      if (resp.ok) {
-        navigate('/socios');
+    if (!validate()) {
+      toast.error("Revisá los campos del formulario.");
+      return;
+    }
+
+    try {
+      setGuardando(true);
+
+      let resp;
+      if (editando) {
+        resp = await editarSocio(id, form);
+      } else {
+        resp = await crearSocio(form);
       }
-    } else {
-      const resp = await crearSocio(form);
+
       if (resp.ok) {
+        toast.success(editando ? "Socio actualizado." : "Socio creado.");
         navigate('/socios');
+      } else {
+        toast.error("Ocurrió un error.");
       }
+    } catch {
+      toast.error("No se pudo guardar. Verificá los datos.");
+    } finally {
+      setGuardando(false);
     }
   };
+
+  if (loading) {
+    return <p className="text-gray-500">Cargando formulario...</p>;
+  }
 
   return (
     <div className="space-y-6">
@@ -64,9 +114,14 @@ export default function SocioFormPage() {
             name="nombre"
             value={form.nombre}
             onChange={handleChange}
-            className="p-2 border rounded-lg w-full"
+            className={`p-2 border rounded-lg w-full ${
+              errors.nombre ? "border-red-500" : "border-gray-300"
+            }`}
             required
           />
+          {errors.nombre && (
+            <p className="text-red-500 text-sm mt-1">{errors.nombre}</p>
+          )}
         </div>
 
         {/* DNI */}
@@ -76,9 +131,14 @@ export default function SocioFormPage() {
             name="dni"
             value={form.dni}
             onChange={handleChange}
-            className="p-2 border rounded-lg w-full"
+            className={`p-2 border rounded-lg w-full ${
+              errors.dni ? "border-red-500" : "border-gray-300"
+            }`}
             required
           />
+          {errors.dni && (
+            <p className="text-red-500 text-sm mt-1">{errors.dni}</p>
+          )}
         </div>
 
         {/* N° Socio */}
@@ -88,9 +148,14 @@ export default function SocioFormPage() {
             name="nroSocio"
             value={form.nroSocio}
             onChange={handleChange}
-            className="p-2 border rounded-lg w-full"
+            className={`p-2 border rounded-lg w-full ${
+              errors.nroSocio ? "border-red-500" : "border-gray-300"
+            }`}
             required
           />
+          {errors.nroSocio && (
+            <p className="text-red-500 text-sm mt-1">{errors.nroSocio}</p>
+          )}
         </div>
 
         {/* Teléfono */}
@@ -133,9 +198,17 @@ export default function SocioFormPage() {
         {/* Botón guardar */}
         <button
           type="submit"
-          className="px-4 py-2 bg-sol-blue text-white rounded-md hover:bg-blue-800 font-medium"
+          disabled={guardando}
+          className={`px-4 py-2 bg-sol-blue text-white rounded-md font-medium
+            hover:bg-blue-800 transition ${
+              guardando ? "opacity-50 cursor-not-allowed" : ""
+            }`}
         >
-          {editando ? 'Guardar cambios' : 'Crear socio'}
+          {guardando
+            ? "Guardando..."
+            : editando
+            ? "Guardar cambios"
+            : "Crear socio"}
         </button>
       </form>
     </div>

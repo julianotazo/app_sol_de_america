@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import ModalEliminarSocio from '../../components/ModalEliminarSocio';
 import { obtenerSocios, eliminarSocio } from '../../services/sociosService';
+import { toast } from "sonner";
 
 export default function SociosPage() {
   const navigate = useNavigate();
@@ -12,11 +12,21 @@ export default function SociosPage() {
   const [estado, setEstado] = useState('todos');
   const [eliminarId, setEliminarId] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+  const [eliminando, setEliminando] = useState(false);
+
   // Cargar socios
   useEffect(() => {
     async function cargar() {
-      const data = await obtenerSocios();
-      setSocios(data);
+      try {
+        setLoading(true);
+        const data = await obtenerSocios();
+        setSocios(data);
+      } catch {
+        toast.error("Error cargando socios.");
+      } finally {
+        setLoading(false);
+      }
     }
     cargar();
   }, []);
@@ -35,12 +45,46 @@ export default function SociosPage() {
 
   // Eliminar socio
   const handleConfirmarEliminar = async () => {
-    const resp = await eliminarSocio(eliminarId);
+    try {
+      setEliminando(true);
+      const resp = await eliminarSocio(eliminarId);
 
-    if (resp.ok) {
-      setSocios((prev) => prev.filter((s) => s.id !== eliminarId));
+      if (resp.ok) {
+        setSocios((prev) => prev.filter((s) => s.id !== eliminarId));
+        toast.success("Socio eliminado correctamente.");
+      }
+    } catch {
+      toast.error("No se pudo eliminar el socio.");
+    } finally {
+      setEliminando(false);
       setEliminarId(null);
     }
+  };
+
+  // COMPONENTE: Skeleton Loader
+  const LoaderFila = () => (
+    <tr className="animate-pulse">
+      <td className="p-4"><div className="h-4 bg-gray-300 rounded w-40"></div></td>
+      <td className="p-4"><div className="h-4 bg-gray-300 rounded w-20"></div></td>
+      <td className="p-4"><div className="h-4 bg-gray-300 rounded w-32"></div></td>
+      <td className="p-4"><div className="h-4 bg-gray-300 rounded w-24"></div></td>
+      <td className="p-4"><div className="h-4 bg-gray-300 rounded w-32"></div></td>
+    </tr>
+  );
+
+  // Badge de estado
+  const BadgeEstado = ({ estado }) => {
+    const colores = {
+      activo: "bg-green-100 text-green-700",
+      inactivo: "bg-gray-200 text-gray-700",
+      suspendido: "bg-red-200 text-red-700",
+    };
+
+    return (
+      <span className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${colores[estado]}`}>
+        {estado}
+      </span>
+    );
   };
 
   return (
@@ -91,23 +135,37 @@ export default function SociosPage() {
           </thead>
 
           <tbody>
-            {sociosFiltrados.length === 0 ? (
+            {/* LOADING */}
+            {loading && [...Array(5)].map((_, i) => <LoaderFila key={i} />)}
+
+            {/* SIN RESULTADOS */}
+            {!loading && sociosFiltrados.length === 0 && (
               <tr>
-                <td colSpan="5" className="p-4 text-center text-gray-500">
-                  No se encontraron socios.
+                <td colSpan="5" className="p-6 text-center text-gray-500">
+                  <p className="text-lg font-medium">No se encontraron socios</p>
+                  <button
+                    onClick={() => navigate('/socios/crear')}
+                    className="mt-3 px-4 py-2 bg-sol-blue text-white rounded-md hover:bg-blue-800"
+                  >
+                    Crear primer socio
+                  </button>
                 </td>
               </tr>
-            ) : (
+            )}
+
+            {/* FILAS */}
+            {!loading &&
               sociosFiltrados.map((s) => (
-                <tr key={s.id} className="border-b hover:bg-gray-100">
+                <tr key={s.id} className="border-b hover:bg-gray-100 transition">
                   <td className="p-3">{s.nombre}</td>
                   <td className="p-3">{s.dni}</td>
                   <td className="p-3">{s.nroSocio}</td>
-                  <td className="p-3 capitalize">{s.estado}</td>
+                  <td className="p-3">
+                    <BadgeEstado estado={s.estado} />
+                  </td>
 
                   <td className="p-3">
                     <div className="flex gap-2">
-                      {/* VER DETALLE */}
                       <button
                         onClick={() => navigate(`/socios/${s.id}`)}
                         className="px-3 py-1 bg-sol-blue text-white rounded-md text-sm hover:bg-blue-800"
@@ -115,7 +173,6 @@ export default function SociosPage() {
                         Ver
                       </button>
 
-                      {/* EDITAR */}
                       <button
                         onClick={() => navigate(`/socios/${s.id}/editar`)}
                         className="px-3 py-1 bg-yellow-500 text-black rounded-md text-sm hover:bg-yellow-400"
@@ -123,18 +180,19 @@ export default function SociosPage() {
                         Editar
                       </button>
 
-                      {/* ELIMINAR */}
                       <button
                         onClick={() => setEliminarId(s.id)}
-                        className="px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700"
+                        className={`px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 ${
+                          eliminando ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                        disabled={eliminando}
                       >
-                        Eliminar
+                        {eliminando && eliminarId === s.id ? "Eliminando..." : "Eliminar"}
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))
-            )}
+              ))}
           </tbody>
         </table>
       </div>
