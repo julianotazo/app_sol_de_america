@@ -7,7 +7,13 @@ import globals from 'globals';
 export default [
   {
     files: ['**/*.{js,jsx}'],
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'tailwind.config.js',
+      'vite.config.js',
+      'postcss.config.js'
+    ],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

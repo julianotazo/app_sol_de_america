@@ -34,16 +34,32 @@ services:
     ports:
       - "3000:3000"
 
+  # web:
+  #   build: ./frontend
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - api
+  #   environment:
+  #     # Desde el navegador, el backend se ve en localhost:3000
+  #     VITE_API_URL: http://localhost:3000
+  #   ports:
+  #     - "5173:5173"
   web:
     build: ./frontend
     restart: unless-stopped
     depends_on:
       - api
     environment:
-      # Desde el navegador, el backend se ve en localhost:3000
-      VITE_API_URL: http://localhost:3000
+      - VITE_API_URL=http://localhost:3000
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     ports:
       - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: ["npm", "run", "dev", "--", "--host"]
+
 
 volumes:
   dbdata:

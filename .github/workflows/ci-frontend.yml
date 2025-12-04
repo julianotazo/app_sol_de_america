@@ -32,7 +32,7 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Upload build artifact
+      - name: Upload build artifact ##Guarda el resultado en un artifact llamado frontend-build
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
