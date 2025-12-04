@@ -11,19 +11,19 @@ exports.up = (pgm) => {
     INSERT INTO branches (name, description, address, phone)
     VALUES
       (
-        'Estadio',
+        'Estadio Sol De América',
         'Estadio de Club Sol de América de Formosa',
-        'Direccion Estadio',
+        'Ruta Nacional 11 Lote N° 34 - Ciudad de Formosa, Provincia de Formosa',
         '3704000001'
       ),
       (
-        'Sede Principal',
+        'Sede Principal - Sol de América',
         'Sede administrativa y central',
-        'Direccion sede principal',
-        '3704000002'
+        'Clotilde Villar Brizuela 189 - Ciudad de Formosa, Provincia de Formosa',
+        '3704670577'
       ),
       (
-        'Sede de Inferiores',
+        'Sede de Inferiores de Fútbol',
         'Sede para categorías formativas de fútbol',
         'Dirección Sede Inferiores',
         '3704000003'
@@ -34,9 +34,9 @@ exports.up = (pgm) => {
   pgm.sql(`
     INSERT INTO roles (name, description)
     VALUES
-      ('ADMIN', 'Administrador del sistema y del club'),
-      ('SOCIO', 'Socio/deportista del club (jugador)'),
-      ('ENTRENADOR', 'Entrenador de planteles deportivos');
+      ('Admin', 'Administrador del sistema y del club'),
+      ('Socio', 'Socio/deportista del club (jugador)'),
+      ('Entrenador', 'Entrenador de planteles deportivos');
   `);
 };
 

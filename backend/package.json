@@ -13,7 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
-    "node-pg-migrate": {
+  "node-pg-migrate": {
     "migrationFileExtension": "cjs",
     "dir": "migrations"
   },
