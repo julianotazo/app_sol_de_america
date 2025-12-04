@@ -6,7 +6,7 @@ import {
   obtenerSocio
 } from '../../services/sociosService';
 
-import { toast } from "sonner";
+import { toast } from 'sonner';
 
 export default function SocioFormPage() {
   const { id } = useParams();
@@ -14,7 +14,7 @@ export default function SocioFormPage() {
 
   const editando = Boolean(id);
 
-  const [loading, setLoading] = useState(true);   // carga inicial
+  const [loading, setLoading] = useState(true); // carga inicial
   const [guardando, setGuardando] = useState(false); // botón guardar
   const [errors, setErrors] = useState({}); // validaciones
 
@@ -36,7 +36,7 @@ export default function SocioFormPage() {
           setForm(data);
         }
       } catch {
-        toast.error("Error cargando datos del socio.");
+        toast.error('Error cargando datos del socio.');
       } finally {
         setLoading(false);
       }
@@ -48,10 +48,12 @@ export default function SocioFormPage() {
   const validate = () => {
     const newErrors = {};
 
-    if (!form.nombre.trim()) newErrors.nombre = "El nombre es obligatorio.";
-    if (!form.dni.trim()) newErrors.dni = "El DNI es obligatorio.";
-    if (!/^\d+$/.test(form.dni)) newErrors.dni = "El DNI debe contener solo números.";
-    if (!form.nroSocio.trim()) newErrors.nroSocio = "El número de socio es obligatorio.";
+    if (!form.nombre.trim()) newErrors.nombre = 'El nombre es obligatorio.';
+    if (!form.dni.trim()) newErrors.dni = 'El DNI es obligatorio.';
+    if (!/^\d+$/.test(form.dni))
+      newErrors.dni = 'El DNI debe contener solo números.';
+    if (!form.nroSocio.trim())
+      newErrors.nroSocio = 'El número de socio es obligatorio.';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -66,7 +68,7 @@ export default function SocioFormPage() {
     e.preventDefault();
 
     if (!validate()) {
-      toast.error("Revisá los campos del formulario.");
+      toast.error('Revisá los campos del formulario.');
       return;
     }
 
@@ -81,13 +83,13 @@ export default function SocioFormPage() {
       }
 
       if (resp.ok) {
-        toast.success(editando ? "Socio actualizado." : "Socio creado.");
+        toast.success(editando ? 'Socio actualizado.' : 'Socio creado.');
         navigate('/socios');
       } else {
-        toast.error("Ocurrió un error.");
+        toast.error('Ocurrió un error.');
       }
     } catch {
-      toast.error("No se pudo guardar. Verificá los datos.");
+      toast.error('No se pudo guardar. Verificá los datos.');
     } finally {
       setGuardando(false);
     }
@@ -115,7 +117,7 @@ export default function SocioFormPage() {
             value={form.nombre}
             onChange={handleChange}
             className={`p-2 border rounded-lg w-full ${
-              errors.nombre ? "border-red-500" : "border-gray-300"
+              errors.nombre ? 'border-red-500' : 'border-gray-300'
             }`}
             required
           />
@@ -132,7 +134,7 @@ export default function SocioFormPage() {
             value={form.dni}
             onChange={handleChange}
             className={`p-2 border rounded-lg w-full ${
-              errors.dni ? "border-red-500" : "border-gray-300"
+              errors.dni ? 'border-red-500' : 'border-gray-300'
             }`}
             required
           />
@@ -149,7 +151,7 @@ export default function SocioFormPage() {
             value={form.nroSocio}
             onChange={handleChange}
             className={`p-2 border rounded-lg w-full ${
-              errors.nroSocio ? "border-red-500" : "border-gray-300"
+              errors.nroSocio ? 'border-red-500' : 'border-gray-300'
             }`}
             required
           />
@@ -201,14 +203,14 @@ export default function SocioFormPage() {
           disabled={guardando}
           className={`px-4 py-2 bg-sol-blue text-white rounded-md font-medium
             hover:bg-blue-800 transition ${
-              guardando ? "opacity-50 cursor-not-allowed" : ""
+              guardando ? 'opacity-50 cursor-not-allowed' : ''
             }`}
         >
           {guardando
-            ? "Guardando..."
+            ? 'Guardando...'
             : editando
-            ? "Guardar cambios"
-            : "Crear socio"}
+              ? 'Guardar cambios'
+              : 'Crear socio'}
         </button>
       </form>
     </div>

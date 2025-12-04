@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { loginRequest, meRequest } from "../../services/auth";
-import { useAuthStore } from "../../store/authStore";
-import { useNavigate } from "react-router-dom";
-import { Mail, Lock } from "lucide-react";
+import { useState } from 'react';
+import { loginRequest, meRequest } from '../../services/auth';
+import { useAuthStore } from '../../store/authStore';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Lock } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const login = useAuthStore((state) => state.login);
   const setUser = useAuthStore((state) => state.setUser);
@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     try {
       const { token } = await loginRequest(email, password);
@@ -25,20 +25,19 @@ export default function LoginPage() {
       const me = await meRequest();
       setUser(me);
 
-      navigate("/dashboard");
+      navigate('/dashboard');
     } catch (err) {
-      setError(err?.response?.data?.error || "Error al iniciar sesión");
+      setError(err?.response?.data?.error || 'Error al iniciar sesión');
     }
   };
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
-
       {/* IZQUIERDA — LOGO / MARCA */}
       <div
         className="hidden md:flex flex-col items-center justify-center p-10 sticky top-0 h-screen"
         style={{
-          background: "linear-gradient(135deg, #004AAD 0%, #0B63D1 100%)",
+          background: 'linear-gradient(135deg, #004AAD 0%, #0B63D1 100%)'
         }}
       >
         <img
@@ -61,7 +60,7 @@ export default function LoginPage() {
         className="flex justify-center items-start bg-[#eef3ff] p-6 h-screen overflow-y-auto pt-20"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.5), rgba(238,243,255,1))",
+            'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.5), rgba(238,243,255,1))'
         }}
       >
         <form
@@ -134,7 +133,7 @@ export default function LoginPage() {
 
           {/* Link al registro */}
           <p className="text-center text-gray-600 mt-4 text-sm">
-            ¿No tenés cuenta?{" "}
+            ¿No tenés cuenta?{' '}
             <a
               href="/register"
               className="text-sol-blue font-semibold hover:underline"
