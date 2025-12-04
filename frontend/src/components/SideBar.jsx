@@ -37,6 +37,17 @@ export default function Sidebar() {
         </NavLink>
 
         <NavLink
+          to="/socios"
+          className={({ isActive }) =>
+            `p-2 rounded-md text-sm font-medium ${
+              isActive ? 'bg-sol-yellow text-black' : 'hover:bg-blue-800'
+            }`
+          }
+        >
+          Socios
+        </NavLink>
+
+        <NavLink
           to="/sedes"
           className={({ isActive }) =>
             `p-2 rounded-md text-sm font-medium ${
