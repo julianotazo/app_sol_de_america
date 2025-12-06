@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+
 import {
   crearSocio,
   editarSocio,
@@ -13,38 +14,50 @@ export default function SocioFormPage() {
   const navigate = useNavigate();
 
   const editando = Boolean(id);
-
-  const [loading, setLoading] = useState(true); // carga inicial
-  const [guardando, setGuardando] = useState(false); // botón guardar
-  const [errors, setErrors] = useState({}); // validaciones
+  const [loading, setLoading] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
     nombre: '',
     dni: '',
-    nroSocio: '',
     telefono: '',
     direccion: '',
     estado: 'activo'
   });
 
-  // Cargar socio si estamos editando
+  // ============================================================
+  // CARGAR SOCIO SI EDITAMOS
+  // ============================================================
   useEffect(() => {
     async function cargar() {
       try {
         if (editando) {
           const data = await obtenerSocio(id);
-          setForm(data);
+
+          setForm({
+            nombre: data.nombre,
+            dni: data.dni,
+            telefono: data.telefono,
+            direccion: data.direccion,
+            estado: data.estado,
+            branch_id: data.branch_id,
+            role_id: data.role_id
+          });
         }
       } catch {
-        toast.error('Error cargando datos del socio.');
+        toast.error('Error cargando socio');
       } finally {
         setLoading(false);
       }
     }
+
     cargar();
   }, [id, editando]);
 
-  // Validaciones simples en vivo
+  // ============================================================
+  // VALIDACIONES
+  // ============================================================
   const validate = () => {
     const newErrors = {};
 
@@ -52,8 +65,6 @@ export default function SocioFormPage() {
     if (!form.dni.trim()) newErrors.dni = 'El DNI es obligatorio.';
     if (!/^\d+$/.test(form.dni))
       newErrors.dni = 'El DNI debe contener solo números.';
-    if (!form.nroSocio.trim())
-      newErrors.nroSocio = 'El número de socio es obligatorio.';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -61,43 +72,41 @@ export default function SocioFormPage() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: null }); // limpiar error en vivo
+    setErrors({ ...errors, [e.target.name]: null });
   };
 
+  // ============================================================
+  // GUARDAR
+  // ============================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validate()) {
-      toast.error('Revisá los campos del formulario.');
+      toast.error('Revisá los campos.');
       return;
     }
 
     try {
       setGuardando(true);
 
-      let resp;
       if (editando) {
-        resp = await editarSocio(id, form);
+        await editarSocio(id, form);
+        toast.success('Socio actualizado.');
       } else {
-        resp = await crearSocio(form);
+        await crearSocio(form);
+        toast.success('Socio creado.');
       }
 
-      if (resp.ok) {
-        toast.success(editando ? 'Socio actualizado.' : 'Socio creado.');
-        navigate('/socios');
-      } else {
-        toast.error('Ocurrió un error.');
-      }
-    } catch {
-      toast.error('No se pudo guardar. Verificá los datos.');
+      navigate('/socios');
+    } catch (err) {
+      console.error(err);
+      toast.error('No se pudo guardar.');
     } finally {
       setGuardando(false);
     }
   };
 
-  if (loading) {
-    return <p className="text-gray-500">Cargando formulario...</p>;
-  }
+  if (loading) return <p>Cargando...</p>;
 
   return (
     <div className="space-y-6">
@@ -109,60 +118,28 @@ export default function SocioFormPage() {
         className="bg-white p-6 rounded-xl shadow space-y-4"
         onSubmit={handleSubmit}
       >
-        {/* Nombre */}
         <div>
-          <label className="block font-medium mb-1">Nombre</label>
+          <label className="font-medium mb-1">Nombre completo</label>
           <input
             name="nombre"
             value={form.nombre}
             onChange={handleChange}
-            className={`p-2 border rounded-lg w-full ${
-              errors.nombre ? 'border-red-500' : 'border-gray-300'
-            }`}
-            required
+            className="p-2 border rounded-lg w-full"
           />
-          {errors.nombre && (
-            <p className="text-red-500 text-sm mt-1">{errors.nombre}</p>
-          )}
         </div>
 
-        {/* DNI */}
         <div>
-          <label className="block font-medium mb-1">DNI</label>
+          <label className="font-medium mb-1">DNI</label>
           <input
             name="dni"
             value={form.dni}
             onChange={handleChange}
-            className={`p-2 border rounded-lg w-full ${
-              errors.dni ? 'border-red-500' : 'border-gray-300'
-            }`}
-            required
+            className="p-2 border rounded-lg w-full"
           />
-          {errors.dni && (
-            <p className="text-red-500 text-sm mt-1">{errors.dni}</p>
-          )}
         </div>
 
-        {/* N° Socio */}
         <div>
-          <label className="block font-medium mb-1">N° Socio</label>
-          <input
-            name="nroSocio"
-            value={form.nroSocio}
-            onChange={handleChange}
-            className={`p-2 border rounded-lg w-full ${
-              errors.nroSocio ? 'border-red-500' : 'border-gray-300'
-            }`}
-            required
-          />
-          {errors.nroSocio && (
-            <p className="text-red-500 text-sm mt-1">{errors.nroSocio}</p>
-          )}
-        </div>
-
-        {/* Teléfono */}
-        <div>
-          <label className="block font-medium mb-1">Teléfono</label>
+          <label className="font-medium mb-1">Teléfono</label>
           <input
             name="telefono"
             value={form.telefono}
@@ -171,9 +148,8 @@ export default function SocioFormPage() {
           />
         </div>
 
-        {/* Dirección */}
         <div>
-          <label className="block font-medium mb-1">Dirección</label>
+          <label className="font-medium mb-1">Dirección</label>
           <input
             name="direccion"
             value={form.direccion}
@@ -182,9 +158,8 @@ export default function SocioFormPage() {
           />
         </div>
 
-        {/* Estado */}
         <div>
-          <label className="block font-medium mb-1">Estado</label>
+          <label className="font-medium mb-1">Estado del socio</label>
           <select
             name="estado"
             value={form.estado}
@@ -197,14 +172,10 @@ export default function SocioFormPage() {
           </select>
         </div>
 
-        {/* Botón guardar */}
         <button
           type="submit"
           disabled={guardando}
-          className={`px-4 py-2 bg-sol-blue text-white rounded-md font-medium
-            hover:bg-blue-800 transition ${
-              guardando ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+          className="px-4 py-2 bg-sol-blue text-white rounded-md"
         >
           {guardando
             ? 'Guardando...'

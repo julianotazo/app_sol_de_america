@@ -109,7 +109,7 @@ exports.up = (pgm) => {
   pgm.createTable('membership_status', {
     id: 'id',
     user_id: { type: 'integer', notNull: true }, // aquí es club_users.id
-    month_year: { type: 'varchar(7)', notNull: true },
+    month_year: { type: 'varchar(20)', notNull: true },
     is_paid: { type: 'boolean', notNull: true, default: false },
     updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') }
   });

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { registerRequest } from '../../services/auth';
+import { getBranches, getRoles } from '../../services/catalogsService';
 import { toast } from 'sonner';
 import {
   Mail,
@@ -12,6 +13,7 @@ import {
   Building,
   Shield
 } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -29,6 +31,9 @@ export default function RegisterPage() {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [branches, setBranches] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [loadingCatalogs, setLoadingCatalogs] = useState(false);
 
   const validate = () => {
     const err = {};
@@ -51,38 +56,11 @@ export default function RegisterPage() {
     return Object.keys(err).length === 0;
   };
 
-  const handleChange = (key) => (e) => {
-    setForm({ ...form, [key]: e.target.value });
-    setErrors({ ...errors, [key]: null });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: null }));
   };
-
-  const Field = ({ label, icon: Icon, name, type = 'text', required }) => (
-    <label className="block mb-3 w-full">
-      <span className="text-gray-700 font-medium">{label}</span>
-
-      <div className="relative mt-1">
-        <Icon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-
-        <input
-          type={type}
-          value={form[name]}
-          onChange={handleChange(name)}
-          required={required}
-          className={`
-            pl-10 p-2 w-full border rounded-lg 
-            input-anim
-            focus:ring-2 focus:ring-sol-blue/40 
-            transition-all duration-200
-            ${errors[name] ? 'border-red-500' : 'border-gray-300'}
-          `}
-        />
-      </div>
-
-      {errors[name] && (
-        <p className="text-red-600 text-sm mt-1">{errors[name]}</p>
-      )}
-    </label>
-  );
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -135,6 +113,125 @@ export default function RegisterPage() {
     }
   };
 
+  // Carga de sedes y roles al montar el componente
+  useEffect(() => {
+    const fetchCatalogs = async () => {
+      try {
+        setLoadingCatalogs(true);
+        const [branchesData, rolesData] = await Promise.all([
+          getBranches(),
+          getRoles()
+        ]);
+
+        setBranches(branchesData);
+        setRoles(rolesData);
+      } catch (error) {
+        console.error('Error cargando catálogos:', error);
+        setErrors(
+          'No se pudieron cargar las sedes y roles. Intenta recargar la página.'
+        );
+      } finally {
+        setLoadingCatalogs(false);
+      }
+    };
+
+    fetchCatalogs();
+  }, []);
+
+  const renderInput = ({
+    label,
+    name,
+    type = 'text',
+    icon: Icon,
+    required = false
+  }) => {
+    // handler especial para DNI
+    const handleSpecialChange = (e) => {
+      let value = e.target.value;
+
+      if (name === 'dni') {
+        // dejar solo números
+        value = value.replace(/\D/g, '');
+      }
+
+      setForm((prev) => ({ ...prev, [name]: value }));
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    };
+
+    return (
+      <label className="block mb-3 w-full">
+        <span className="text-gray-700 font-medium">{label}</span>
+
+        <div className="relative mt-1">
+          {Icon && (
+            <Icon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+          )}
+
+          <input
+            type={type}
+            name={name}
+            value={form[name]}
+            onChange={handleSpecialChange} // <-- usa el handler nuevo
+            required={required}
+            autoComplete="off"
+            inputMode={name === 'dni' ? 'numeric' : undefined} // teclado numérico en celular
+            className={`
+            ${Icon ? 'pl-10' : 'pl-3'} 
+            p-2 w-full border rounded-lg 
+            focus:ring-2 focus:ring-sol-blue/40 
+            focus:outline-none
+            transition-all duration-200
+            ${errors[name] ? 'border-red-500' : 'border-gray-300'}
+          `}
+          />
+        </div>
+
+        {errors[name] && (
+          <p className="text-red-600 text-sm mt-1">{errors[name]}</p>
+        )}
+      </label>
+    );
+  };
+
+  const renderInputSelect = ({ label, name, icon: Icon, options }) => (
+    <label className="block mb-3 w-full">
+      <span className="text-gray-700 font-medium">{label}</span>
+
+      <div className="relative mt-1">
+        {Icon && (
+          <Icon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+        )}
+
+        <select
+          name={name}
+          value={form[name]}
+          onChange={handleChange}
+          disabled={loadingCatalogs}
+          className={`
+          ${Icon ? 'pl-10' : 'pl-3'}
+          p-2 w-full border rounded-lg bg-white
+          focus:ring-2 focus:ring-sol-blue/40
+          focus:outline-none
+          transition-all duration-200
+          ${errors[name] ? 'border-red-500' : 'border-gray-300'}
+        `}
+        >
+          <option value="">Seleccionar opción...</option>
+
+          {options.map((opt) => (
+            <option key={opt.id} value={opt.id}>
+              {opt.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {errors[name] && (
+        <p className="text-red-600 text-sm mt-1">{errors[name]}</p>
+      )}
+    </label>
+  );
+
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
       {/* IZQUIERDA — LOGO FIJO */}
@@ -147,59 +244,97 @@ export default function RegisterPage() {
         <img
           src="../public/sol_de_america.png"
           alt="Club Sol de América"
-          className="w-48 h-auto drop-shadow-2xl fade-slide-delay"
+          className="w-48 h-auto drop-shadow-2xl"
         />
 
-        <h1 className="text-white text-3xl font-bold mt-6 tracking-wide text-center fade-slide-delay">
+        <h1 className="text-white text-3xl font-bold mt-6 tracking-wide text-center">
           Club Sol de América
         </h1>
 
-        <p className="text-white/80 mt-2 text-center max-w-sm fade-slide-delay">
+        <p className="text-white/80 mt-2 text-center max-w-sm">
           Sistema institucional • Creá tu cuenta para continuar
         </p>
       </div>
 
       {/* DERECHA — FORMULARIO */}
-      <div
-        className="flex justify-center items-start bg-[#eef3ff] p-6 h-screen overflow-y-auto pt-10"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.5), rgba(238,243,255,1))'
-        }}
-      >
+      <div className="flex justify-center items-start bg-[#eef3ff] p-6 h-screen overflow-y-auto pt-10">
         <form
           onSubmit={onSubmit}
-          className="bg-white p-10 rounded-2xl shadow-[0_4px_20px_rgba(0,74,173,0.15)] w-full max-w-md fade-slide"
+          className="bg-white p-8 rounded-2xl shadow-[0_4px_20px_rgba(0,74,173,0.15)] w-full max-w-md"
         >
           <h2 className="text-2xl font-bold mb-6 text-center text-sol-blue">
             Crear una cuenta
           </h2>
 
-          <Field label="Email" icon={Mail} name="email" type="email" required />
-          <Field
-            label="Contraseña"
-            icon={Lock}
-            name="password"
-            type="password"
-            required
-          />
-          <Field label="DNI" icon={IdCard} name="dni" required />
-          <Field label="Nombre" icon={User} name="first_name" required />
-          <Field label="Apellido" icon={User} name="last_name" required />
-          <Field
-            label="Fecha de nacimiento"
-            icon={Calendar}
-            name="birth_date"
-            type="date"
-          />
-          <Field label="Teléfono" icon={Phone} name="phone" />
-          <Field label="Dirección" icon={MapPin} name="address" />
-          <Field
-            label="Branch ID (opcional)"
-            icon={Building}
-            name="branch_id"
-          />
-          <Field label="Role ID (opcional)" icon={Shield} name="role_id" />
+          {renderInput({
+            label: 'Email',
+            name: 'email',
+            type: 'email',
+            icon: Mail,
+            required: true
+          })}
+
+          {renderInput({
+            label: 'Contraseña',
+            name: 'password',
+            type: 'password',
+            icon: Lock,
+            required: true
+          })}
+
+          {renderInput({
+            label: 'DNI',
+            name: 'dni',
+            icon: IdCard,
+            required: true
+          })}
+
+          {renderInput({
+            label: 'Nombre',
+            name: 'first_name',
+            icon: User,
+            required: true
+          })}
+
+          {renderInput({
+            label: 'Apellido',
+            name: 'last_name',
+            icon: User,
+            required: true
+          })}
+
+          {renderInput({
+            label: 'Fecha de nacimiento',
+            name: 'birth_date',
+            type: 'date',
+            icon: Calendar
+          })}
+
+          {renderInput({
+            label: 'Teléfono',
+            name: 'phone',
+            icon: Phone
+          })}
+
+          {renderInput({
+            label: 'Dirección',
+            name: 'address',
+            icon: MapPin
+          })}
+
+          {renderInputSelect({
+            label: 'Sede del club (opcional)',
+            name: 'branch_id',
+            icon: Building,
+            options: branches
+          })}
+
+          {renderInputSelect({
+            label: 'Rol de usuario (opcional)',
+            name: 'role_id',
+            icon: Shield,
+            options: roles
+          })}
 
           <button
             type="submit"
@@ -215,6 +350,7 @@ export default function RegisterPage() {
           >
             {loading ? 'Registrando...' : 'Registrarse'}
           </button>
+
           <p className="text-center text-gray-600 mt-4 text-sm">
             ¿Ya tenés cuenta?{' '}
             <a href="/" className="text-sol-blue font-semibold hover:underline">

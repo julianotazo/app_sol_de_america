@@ -41,7 +41,10 @@ export default function HistorialAsistenciasPage() {
                 {asistencias.map((a, index) => (
                   <tr key={index} className="border-b hover:bg-gray-100">
                     <td className="p-3">
-                      {new Date(a.fecha).toLocaleString('es-AR')}
+                      {new Date(a.attended_at).toLocaleString('es-AR', {
+                        dateStyle: 'short',
+                        timeStyle: 'short'
+                      })}
                     </td>
                   </tr>
                 ))}

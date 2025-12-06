@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import ModalEliminarSocio from '../../components/ModalEliminarSocio';
 import { obtenerSocios, eliminarSocio } from '../../services/sociosService';
 import { toast } from 'sonner';
@@ -8,18 +9,21 @@ export default function SociosPage() {
   const navigate = useNavigate();
 
   const [socios, setSocios] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Filtros
   const [search, setSearch] = useState('');
   const [estado, setEstado] = useState('todos');
+
+  // Modal eliminar
   const [eliminarId, setEliminarId] = useState(null);
 
-  const [loading, setLoading] = useState(true);
-  const [eliminando, setEliminando] = useState(false);
-
-  // Cargar socios
+  // ===============================
+  // CARGAR SOCIOS
+  // ===============================
   useEffect(() => {
     async function cargar() {
       try {
-        setLoading(true);
         const data = await obtenerSocios();
         setSocios(data);
       } catch {
@@ -31,74 +35,46 @@ export default function SociosPage() {
     cargar();
   }, []);
 
-  // Filtrar búsqueda + estado
-  const sociosFiltrados = socios.filter((s) => {
-    const coincideBusqueda =
-      s.nombre.toLowerCase().includes(search.toLowerCase()) ||
-      s.dni.includes(search) ||
-      s.nroSocio.includes(search);
+  if (loading) return <p className="text-gray-500">Cargando socios...</p>;
 
-    const coincideEstado = estado === 'todos' || s.estado === estado;
+  // ===============================
+  // FILTROS
+  // ===============================
+  const sociosFiltrados = socios.filter((s) => {
+    const busqueda = search.toLowerCase();
+
+    const coincideBusqueda =
+      s.nombre.toLowerCase().includes(busqueda) ||
+      s.dni.includes(search) ||
+      s.nroSocio.toString().includes(search);
+
+    const coincideEstado =
+      estado === 'todos' || s.estado.toLowerCase() === estado;
 
     return coincideBusqueda && coincideEstado;
   });
 
-  // Eliminar socio
+  // ===============================
+  // ELIMINAR SOCIO
+  // ===============================
   const handleConfirmarEliminar = async () => {
     try {
-      setEliminando(true);
-      const resp = await eliminarSocio(eliminarId);
+      await eliminarSocio(eliminarId);
 
-      if (resp.ok) {
-        setSocios((prev) => prev.filter((s) => s.id !== eliminarId));
-        toast.success('Socio eliminado correctamente.');
-      }
-    } catch {
-      toast.error('No se pudo eliminar el socio.');
-    } finally {
-      setEliminando(false);
+      // Eliminar del estado local
+      setSocios((prev) => prev.filter((s) => s.id !== eliminarId));
+
+      toast.success('Socio eliminado correctamente.');
       setEliminarId(null);
+    } catch (err) {
+      console.error(err);
+      toast.error('No se pudo eliminar el socio.');
     }
   };
 
-  // COMPONENTE: Skeleton Loader
-  const LoaderFila = () => (
-    <tr className="animate-pulse">
-      <td className="p-4">
-        <div className="h-4 bg-gray-300 rounded w-40"></div>
-      </td>
-      <td className="p-4">
-        <div className="h-4 bg-gray-300 rounded w-20"></div>
-      </td>
-      <td className="p-4">
-        <div className="h-4 bg-gray-300 rounded w-32"></div>
-      </td>
-      <td className="p-4">
-        <div className="h-4 bg-gray-300 rounded w-24"></div>
-      </td>
-      <td className="p-4">
-        <div className="h-4 bg-gray-300 rounded w-32"></div>
-      </td>
-    </tr>
-  );
-
-  // Badge de estado
-  const BadgeEstado = ({ estado }) => {
-    const colores = {
-      activo: 'bg-green-100 text-green-700',
-      inactivo: 'bg-gray-200 text-gray-700',
-      suspendido: 'bg-red-200 text-red-700'
-    };
-
-    return (
-      <span
-        className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${colores[estado]}`}
-      >
-        {estado}
-      </span>
-    );
-  };
-
+  // ===============================
+  // UI
+  // ===============================
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-sol-blue">Gestión de Socios</h2>
@@ -111,7 +87,7 @@ export default function SociosPage() {
         Crear socio
       </button>
 
-      {/* BUSCADOR + FILTROS */}
+      {/* BUSCADOR + FILTRO */}
       <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-xl shadow">
         <input
           type="text"
@@ -134,53 +110,52 @@ export default function SociosPage() {
       </div>
 
       {/* TABLA */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      <div className="bg-white rounded-xl shadow overflow-x-auto">
         <table className="w-full table-auto">
           <thead className="bg-sol-blue text-white">
             <tr>
               <th className="p-3 text-left">Nombre</th>
               <th className="p-3 text-left">DNI</th>
               <th className="p-3 text-left">N° Socio</th>
+              <th className="p-3 text-left">Rol</th>
               <th className="p-3 text-left">Estado</th>
               <th className="p-3 text-left w-56">Acciones</th>
             </tr>
           </thead>
 
           <tbody>
-            {/* LOADING */}
-            {loading && [...Array(5)].map((_, i) => <LoaderFila key={i} />)}
-
-            {/* SIN RESULTADOS */}
-            {!loading && sociosFiltrados.length === 0 && (
+            {sociosFiltrados.length === 0 ? (
               <tr>
-                <td colSpan="5" className="p-6 text-center text-gray-500">
-                  <p className="text-lg font-medium">
-                    No se encontraron socios
-                  </p>
-                  <button
-                    onClick={() => navigate('/socios/crear')}
-                    className="mt-3 px-4 py-2 bg-sol-blue text-white rounded-md hover:bg-blue-800"
-                  >
-                    Crear primer socio
-                  </button>
+                <td colSpan="6" className="p-4 text-center text-gray-500">
+                  No se encontraron socios.
                 </td>
               </tr>
-            )}
-
-            {/* FILAS */}
-            {!loading &&
+            ) : (
               sociosFiltrados.map((s) => (
-                <tr
-                  key={s.id}
-                  className="border-b hover:bg-gray-100 transition"
-                >
+                <tr key={s.id} className="border-b hover:bg-gray-100">
                   <td className="p-3">{s.nombre}</td>
                   <td className="p-3">{s.dni}</td>
                   <td className="p-3">{s.nroSocio}</td>
-                  <td className="p-3">
-                    <BadgeEstado estado={s.estado} />
+                  <td className="p-3">{s.rol}</td>
+
+                  {/* ESTADO */}
+                  <td className="p-3 capitalize">
+                    <span
+                      className={
+                        s.estado === 'Activo'
+                          ? 'text-green-600 font-semibold'
+                          : s.estado === 'Inactivo'
+                            ? 'text-gray-500 font-semibold'
+                            : s.estado === 'Suspendido'
+                              ? 'text-red-600 font-semibold'
+                              : 'text-yellow-600 font-semibold'
+                      }
+                    >
+                      {s.estado}
+                    </span>
                   </td>
 
+                  {/* ACCIONES */}
                   <td className="p-3">
                     <div className="flex gap-2">
                       <button
@@ -191,7 +166,7 @@ export default function SociosPage() {
                       </button>
 
                       <button
-                        onClick={() => navigate(`/socios/${s.id}/editar`)}
+                        onClick={() => navigate(`/socios/editar/${s.id}`)}
                         className="px-3 py-1 bg-yellow-500 text-black rounded-md text-sm hover:bg-yellow-400"
                       >
                         Editar
@@ -199,24 +174,20 @@ export default function SociosPage() {
 
                       <button
                         onClick={() => setEliminarId(s.id)}
-                        className={`px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 ${
-                          eliminando ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                        disabled={eliminando}
+                        className="px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700"
                       >
-                        {eliminando && eliminarId === s.id
-                          ? 'Eliminando...'
-                          : 'Eliminar'}
+                        Eliminar
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* MODAL ELIMINAR */}
+      {/* MODAL ELIMINACIÓN */}
       <ModalEliminarSocio
         isOpen={eliminarId !== null}
         onClose={() => setEliminarId(null)}

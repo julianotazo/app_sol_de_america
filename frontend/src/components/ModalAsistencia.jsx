@@ -9,7 +9,11 @@ export default function ModalAsistencia({ isOpen, onClose, onConfirm, socio }) {
         </h2>
 
         <p className="mt-4">
-          ¿Confirmás la asistencia de <strong>{socio.nombre}</strong>?
+          ¿Confirmás la asistencia de{' '}
+          <strong>
+            {socio?.first_name} {socio?.last_name}
+          </strong>
+          ?
         </p>
 
         <div className="flex justify-end mt-6 gap-3">
