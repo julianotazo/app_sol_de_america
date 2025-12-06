@@ -77,6 +77,7 @@ export async function deleteSocioController(req, res, next) {
 
 // PAGOS
 export async function addPagoController(req, res, next) {
+  console.log('REQ BODY PAGO:', req.body);
   try {
     const { id } = req.params;
     const pago = await addPago(Number(id), req.body);
@@ -98,6 +99,8 @@ export async function listPagosController(req, res, next) {
 
 // ASISTENCIAS
 export async function addAsistenciaController(req, res, next) {
+  console.log('REQ BODY ASISTENCIA:', req.body);
+
   try {
     const { id } = req.params;
     const asistencia = await addAsistencia(Number(id), req.body);

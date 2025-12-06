@@ -53,7 +53,7 @@ export default function AppRouter() {
             element={<HistorialAsistenciasPage />}
           />
           <Route path="socios/crear" element={<SocioFormPage />} />
-          <Route path="socios/:id/editar" element={<SocioFormPage />} />
+          <Route path="/socios/editar/:id" element={<SocioFormPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

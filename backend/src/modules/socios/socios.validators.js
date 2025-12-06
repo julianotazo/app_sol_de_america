@@ -15,7 +15,11 @@ const baseSocioSchema = z.object({
 
 const createSocioSchema = baseSocioSchema;
 
-const updateSocioSchema = baseSocioSchema.partial(); // todos opcionales
+const updateSocioSchema = baseSocioSchema
+  .extend({
+    member_state_id: z.number().int().optional()
+  })
+  .partial();
 
 const pagoSchema = z.object({
   month_year: z.string(), // ej: '2025-12-01' o '2025-12'
@@ -25,8 +29,8 @@ const pagoSchema = z.object({
 });
 
 const asistenciaSchema = z.object({
-  date: z.string(), // 'YYYY-MM-DD'
-  status: z.string().optional(), // ej: 'PRESENTE' / 'AUSENTE'
+  attended_at: z.string(), // fecha y hora ISO
+  status: z.string().optional(),
   notes: z.string().optional()
 });
 

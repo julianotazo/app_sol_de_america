@@ -1,21 +1,23 @@
-export async function registrarAsistencia() {
-  //por parametros me tiene que llegar socioId
-  // TODO: reemplazar por tu API real
-  // Ejemplo: await api.post(`/socios/${socioId}/asistencias`);
+import api from './api';
 
-  return {
-    ok: true,
-    fecha: new Date().toISOString()
-  };
+export async function registrarAsistencia(socioId) {
+  console.log('ENVIANDO AL BACK:', {
+    attended_at: new Date().toISOString(),
+    status: 'PRESENTE',
+    notes: ''
+  });
+
+  const res = await api.post(`/socios/${socioId}/asistencias`, {
+    attended_at: new Date().toISOString(),
+    status: 'PRESENTE',
+    notes: ''
+  });
+
+  return res.data;
 }
 
-// Obtener historial completo de asistencias
-export async function obtenerHistorialAsistencias() {
-  //por parametros me tiene que llegar socioId
-  // TODO: conectar a tu backend real
-  return [
-    { fecha: '2024-11-01T18:00:00' },
-    { fecha: '2024-11-03T18:00:00' },
-    { fecha: '2024-11-05T18:00:00' }
-  ];
+// Obtener historial real
+export async function obtenerHistorialAsistencias(socioId) {
+  const res = await api.get(`/socios/${socioId}/asistencias`);
+  return res.data;
 }

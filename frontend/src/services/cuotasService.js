@@ -1,19 +1,13 @@
-export async function registrarPago(monto) {
-  //por parametros me tiene que llegar socioId
-  // TODO: reemplazar por API real
-  return {
-    ok: true,
-    fecha: new Date().toISOString(),
-    monto
-  };
+import api from './api';
+
+// Registrar un pago real
+export async function registrarPago(socioId, data) {
+  const res = await api.post(`/socios/${socioId}/pagos`, data);
+  return res.data;
 }
 
-export async function obtenerHistorialPagos() {
-  //por parametros me tiene que llegar socioId
-  // TODO: reemplazar por API real
-  return [
-    { fecha: '2024-11-15', monto: 5000 },
-    { fecha: '2024-10-12', monto: 5000 },
-    { fecha: '2024-09-10', monto: 5000 }
-  ];
+// Obtener pagos reales del backend
+export async function obtenerHistorialPagos(socioId) {
+  const res = await api.get(`/socios/${socioId}/pagos`);
+  return res.data; // devolvemos tal cual viene del backend
 }

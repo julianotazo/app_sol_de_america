@@ -6,24 +6,29 @@ const DEFAULT_SEDE_BRANCH_ID = 2;
 // LISTAR SOCIOS
 export async function getAllSocios() {
   const query = `
-    SELECT
-      cu.id        AS club_user_id,
-      u.id         AS user_id,
-      u.dni,
-      u.first_name,
-      u.last_name,
-      u.email,
-      u.phone,
-      b.id         AS branch_id,
-      b.name       AS branch_name,
-      r.id         AS role_id,
-      r.name       AS role_name
-    FROM club_users cu
-    JOIN users u ON u.id = cu.user_id
-    LEFT JOIN branches b ON b.id = cu.branch_id
-    LEFT JOIN roles r ON r.id = cu.role_id
-    ORDER BY u.last_name, u.first_name;
-  `;
+  SELECT
+    cu.id        AS club_user_id,
+    u.id         AS user_id,
+    u.dni,
+    u.first_name,
+    u.last_name,
+    u.email,
+    u.phone,
+    b.id         AS branch_id,
+    b.name       AS branch_name,
+    r.id         AS role_id,
+    r.name       AS role_name,
+    ms.id        AS member_state_id,
+    ms.code      AS member_state_code,
+    ms.label     AS member_state_label
+  FROM club_users cu
+  JOIN users u ON u.id = cu.user_id
+  LEFT JOIN branches b ON b.id = cu.branch_id
+  LEFT JOIN roles r ON r.id = cu.role_id
+  LEFT JOIN member_states ms ON ms.id = cu.member_state_id
+  ORDER BY u.last_name, u.first_name;
+`;
+
   const result = await pool.query(query);
   return result.rows;
 }
@@ -44,28 +49,36 @@ export async function getSocioById(clubUserId) {
       b.id         AS branch_id,
       b.name       AS branch_name,
       r.id         AS role_id,
-      r.name       AS role_name
+      r.name       AS role_name,
+
+      -- 🔥 ESTA ES LA PARTE QUE FALTABA
+      cu.member_state_id,
+      ms.code  AS member_state_code,
+      ms.label AS member_state_label
+
     FROM club_users cu
     JOIN users u ON u.id = cu.user_id
     LEFT JOIN branches b ON b.id = cu.branch_id
     LEFT JOIN roles r ON r.id = cu.role_id
+    LEFT JOIN member_states ms ON ms.id = cu.member_state_id
     WHERE cu.id = $1;
   `;
+
   const result = await pool.query(query, [clubUserId]);
   return result.rows[0] || null;
 }
 
-// CREAR SOCIO (NO crea auth_local)
 export async function createSocio(data) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
+    // Crear user
     const userRes = await client.query(
       `
       INSERT INTO users (dni, last_name, first_name, birth_date, phone, email, address)
       VALUES ($1,$2,$3,$4,$5,$6,$7)
-      RETURNING id, dni, last_name, first_name, birth_date, phone, email, address
+      RETURNING id
       `,
       [
         data.dni,
@@ -77,18 +90,23 @@ export async function createSocio(data) {
         data.address ?? null
       ]
     );
+
     const user = userRes.rows[0];
+
+    // 🔥 NUEVO: aseguramos que siempre tenga un estado
+    const memberState = data.member_state_id ?? 1; // 1 = activo
 
     const branchId = data.branch_id ?? DEFAULT_SEDE_BRANCH_ID;
     const roleId = data.role_id ?? DEFAULT_SOCIO_ROLE_ID;
 
+    // 🔥 FIX AQUÍ — AHORA insertamos member_state_id
     const clubUserRes = await client.query(
       `
-      INSERT INTO club_users (user_id, branch_id, role_id)
-      VALUES ($1,$2,$3)
+      INSERT INTO club_users (user_id, branch_id, role_id, member_state_id)
+      VALUES ($1,$2,$3,$4)
       RETURNING id
       `,
-      [user.id, branchId, roleId]
+      [user.id, branchId, roleId, memberState]
     );
 
     await client.query('COMMIT');
@@ -148,15 +166,22 @@ export async function updateSocio(clubUserId, data) {
     );
 
     // update club_users
+    // update club_users
     await client.query(
       `
-      UPDATE club_users
-      SET
-        branch_id = COALESCE($1, branch_id),
-        role_id   = COALESCE($2, role_id)
-      WHERE id = $3
-      `,
-      [data.branch_id ?? null, data.role_id ?? null, clubUserId]
+  UPDATE club_users
+  SET
+    branch_id = COALESCE($1, branch_id),
+    role_id   = COALESCE($2, role_id),
+    member_state_id = COALESCE($3, member_state_id)
+  WHERE id = $4
+  `,
+      [
+        data.branch_id ?? null,
+        data.role_id ?? null,
+        data.member_state_id ?? null,
+        clubUserId
+      ]
     );
 
     await client.query('COMMIT');
@@ -181,7 +206,7 @@ export async function deleteSocio(clubUserId) {
 export async function addPago(clubUserId, data) {
   const query = `
     INSERT INTO membership_status
-      (club_user_id, month_year, is_paid, payment_state_id, member_state_id)
+      (user_id, month_year, is_paid, payment_state_id, member_state_id)
     VALUES ($1, $2, $3, $4, $5)
     RETURNING id;
   `;
@@ -189,7 +214,7 @@ export async function addPago(clubUserId, data) {
   const isPaid = data.is_paid ?? (data.payment_state_id ? true : false);
 
   const result = await pool.query(query, [
-    clubUserId,
+    clubUserId, // ← ahora sí va a user_id
     data.month_year,
     isPaid,
     data.payment_state_id,
@@ -214,9 +239,10 @@ export async function getPagos(clubUserId) {
     FROM membership_status ms
     LEFT JOIN payment_states ps ON ps.id = ms.payment_state_id
     LEFT JOIN member_states ms2 ON ms2.id = ms.member_state_id
-    WHERE ms.club_user_id = $1
+    WHERE ms.user_id = $1
     ORDER BY ms.month_year DESC;
   `;
+
   const result = await pool.query(query, [clubUserId]);
   return result.rows;
 }
@@ -224,25 +250,32 @@ export async function getPagos(clubUserId) {
 // ASISTENCIAS (requiere una tabla, ej. attendances)
 export async function addAsistencia(clubUserId, data) {
   const query = `
-    INSERT INTO attendances (club_user_id, date, status, notes)
+    INSERT INTO attendances (club_user_id, attended_at, status, notes)
     VALUES ($1, $2, $3, $4)
     RETURNING id;
   `;
+
   const result = await pool.query(query, [
     clubUserId,
-    data.date,
+    data.attended_at, // ✅ ESTA ES LA PROPIEDAD CORRECTA
     data.status ?? null,
     data.notes ?? null
   ]);
+
   return result.rows[0];
 }
 
 export async function getAsistencias(clubUserId) {
   const query = `
-    SELECT id, club_user_id, date, status, notes
+    SELECT 
+      id, 
+      club_user_id, 
+      attended_at, 
+      status, 
+      notes
     FROM attendances
     WHERE club_user_id = $1
-    ORDER BY date DESC;
+    ORDER BY attended_at DESC;
   `;
   const result = await pool.query(query, [clubUserId]);
   return result.rows;

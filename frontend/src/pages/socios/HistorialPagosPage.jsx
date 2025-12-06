@@ -9,9 +9,12 @@ export default function HistorialPagosPage() {
 
   useEffect(() => {
     async function cargarPagos() {
-      const data = await obtenerHistorialPagos(id);
-      setPagos(data);
-      setLoading(false);
+      try {
+        const data = await obtenerHistorialPagos(id);
+        setPagos(data);
+      } finally {
+        setLoading(false);
+      }
     }
 
     cargarPagos();
@@ -35,18 +38,26 @@ export default function HistorialPagosPage() {
             <table className="w-full table-auto">
               <thead className="bg-sol-blue text-white">
                 <tr>
-                  <th className="p-3 text-left">Fecha</th>
-                  <th className="p-3 text-left">Monto</th>
+                  <th className="p-3 text-left">Mes</th>
+                  <th className="p-3 text-left">Estado</th>
                 </tr>
               </thead>
 
               <tbody>
-                {pagos.map((p, index) => (
-                  <tr key={index} className="border-b hover:bg-gray-100">
+                {pagos.map((p) => (
+                  <tr key={p.id} className="border-b hover:bg-gray-100">
                     <td className="p-3">
-                      {new Date(p.fecha).toLocaleDateString('es-AR')}
+                      {new Date(p.month_year + 'T00:00:00').toLocaleDateString(
+                        'es-AR',
+                        {
+                          year: 'numeric',
+                          month: 'long'
+                        }
+                      )}
                     </td>
-                    <td className="p-3 font-semibold">${p.monto}</td>
+                    <td className="p-3 font-semibold">
+                      {p.is_paid ? 'Pagado' : 'Pendiente'}
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -1,13 +1,13 @@
 import api from './api';
 
-// Trae todas las sedes del club
+// sedes
 export async function getBranches() {
   const res = await api.get('/branches');
-  return res.data; // se espera un array de sedes
+  return res.data; // [{ id, name }]
 }
 
-// Trae todos los roles de usuario
+// roles
 export async function getRoles() {
   const res = await api.get('/roles');
-  return res.data; // se espera un array de roles
+  return res.data; // [{ id, name }]
 }
