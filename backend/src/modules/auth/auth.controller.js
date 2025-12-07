@@ -65,13 +65,16 @@ export const requireAdmin = (req, res, next) => {
 };
 
 /** Datos del usuario autenticado */
-export const me = async (req, res) => {
+export const me = async (req, res, next) => {
   // req.user viene desde requireAuth
   if (!req.user) {
     return res.status(401).json({ error: 'No autenticado' });
   }
 
-  res.json({
-    user: req.user
-  });
+  try {
+    const user = await service.getUserProfile(req.user.sub);
+    res.json({ user });
+  } catch (err) {
+    next(err);
+  }
 };

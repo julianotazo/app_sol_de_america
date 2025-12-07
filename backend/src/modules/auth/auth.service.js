@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const DEFAULT_SOCIO_ROLE_ID = 2;
 const DEFAULT_SEDE_BRANCH_ID = 2;
+const DEFAULT_MEMBER_STATE_ID = 1;
 
 export async function registerUser(data) {
   const client = await pool.connect();
@@ -43,9 +44,9 @@ export async function registerUser(data) {
     const roleId = data.role_id ?? DEFAULT_SOCIO_ROLE_ID;
 
     await client.query(
-      `INSERT INTO public.club_users (user_id, branch_id, role_id)
-       VALUES ($1, $2, $3)`,
-      [user.id, branchId, roleId]
+      `INSERT INTO public.club_users (user_id, branch_id, role_id, member_state_id)
+       VALUES ($1, $2, $3, $4)`,
+      [user.id, branchId, roleId, DEFAULT_MEMBER_STATE_ID]
     );
 
     await client.query('COMMIT');
@@ -95,6 +96,8 @@ export async function loginUser({ email, password }) {
     {
       sub: row.user_id,
       email: row.email,
+      first_name: row.first_name,
+      last_name: row.last_name,
       name: `${row.first_name} ${row.last_name}`,
       roleId, // 👈 id del rol
       role: roleName // 👈 nombre del rol (ADMIN, SOCIO, ENTRENADOR, etc.)
@@ -104,4 +107,36 @@ export async function loginUser({ email, password }) {
   );
 
   return token;
+}
+
+export async function getUserProfile(userId) {
+  const result = await pool.query(
+    `SELECT
+        u.id,
+        u.first_name,
+        u.last_name,
+        u.dni,
+        u.email,
+        u.phone,
+        u.address,
+        u.birth_date,
+        cu.role_id,
+        r.name AS role,
+        cu.branch_id,
+        b.name AS branch,
+        cu.join_date,
+        cu.active
+     FROM public.users u
+     LEFT JOIN public.club_users cu ON cu.user_id = u.id
+     LEFT JOIN public.roles r ON r.id = cu.role_id
+     LEFT JOIN public.branches b ON b.id = cu.branch_id
+     WHERE u.id = $1`,
+    [userId]
+  );
+
+  if (!result.rows.length) {
+    throw new Error('Usuario no encontrado');
+  }
+
+  return result.rows[0];
 }
