@@ -1,7 +1,28 @@
 import { NavLink } from 'react-router-dom';
-import logo from '../../public/sol_de_america.png'; // poné el nombre correcto del archivo
+import { useAuthStore } from '../store/authStore';
+import { resolveRole } from '../utils/roles';
+import logo from '../../public/sol_de_america.png';
 
 export default function Sidebar() {
+  const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
+
+  const role = resolveRole(user, token);
+  const isAdmin = role === 'admin';
+
+  const links = isAdmin
+    ? [
+        { to: '/dashboard', label: 'Inicio' },
+        { to: '/jugadores', label: 'Jugadores' },
+        { to: '/socios', label: 'Socios' },
+        { to: '/sedes', label: 'Sedes' },
+        { to: '/personal', label: 'Personal' }
+      ]
+    : [
+        { to: '/bienvenida', label: 'Inicio' },
+        { to: '/perfil', label: 'Perfil Personal' }
+      ];
+
   return (
     <aside className="w-64 bg-sol-blue text-white h-screen p-4 flex flex-col">
       {/* Logo */}
@@ -14,60 +35,19 @@ export default function Sidebar() {
 
       {/* Links */}
       <nav className="flex flex-col gap-2 text-white">
-        <NavLink
-          to="/dashboard"
-          className={({ isActive }) =>
-            `p-2 rounded-md text-sm font-medium ${
-              isActive ? 'bg-sol-yellow text-black' : 'hover:bg-blue-800'
-            }`
-          }
-        >
-          Inicio
-        </NavLink>
-
-        <NavLink
-          to="/jugadores"
-          className={({ isActive }) =>
-            `p-2 rounded-md text-sm font-medium ${
-              isActive ? 'bg-sol-yellow text-black' : 'hover:bg-blue-800'
-            }`
-          }
-        >
-          Jugadores
-        </NavLink>
-
-        <NavLink
-          to="/socios"
-          className={({ isActive }) =>
-            `p-2 rounded-md text-sm font-medium ${
-              isActive ? 'bg-sol-yellow text-black' : 'hover:bg-blue-800'
-            }`
-          }
-        >
-          Socios
-        </NavLink>
-
-        <NavLink
-          to="/sedes"
-          className={({ isActive }) =>
-            `p-2 rounded-md text-sm font-medium ${
-              isActive ? 'bg-sol-yellow text-black' : 'hover:bg-blue-800'
-            }`
-          }
-        >
-          Sedes
-        </NavLink>
-
-        <NavLink
-          to="/personal"
-          className={({ isActive }) =>
-            `p-2 rounded-md text-sm font-medium ${
-              isActive ? 'bg-sol-yellow text-black' : 'hover:bg-blue-800'
-            }`
-          }
-        >
-          Personal
-        </NavLink>
+        {links.map(({ to, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              `p-2 rounded-md text-sm font-medium ${
+                isActive ? 'bg-sol-yellow text-black' : 'hover:bg-blue-800'
+              }`
+            }
+          >
+            {label}
+          </NavLink>
+        ))}
       </nav>
     </aside>
   );

@@ -1,12 +1,16 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { resolveRole } from '../utils/roles';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
+
+  const role = resolveRole(user, token);
 
   const displayName = useMemo(() => {
     if (!user) return 'Usuario';
@@ -34,8 +38,9 @@ export default function Navbar() {
   };
   return (
     <header className="relative h-16 bg-white shadow flex items-center justify-between px-6">
-      <h1 className="text-xl font-semibold text-sol-blue">Panel del Club</h1>
-
+      <h1 className="text-xl font-semibold text-sol-blue">
+        {role === 'admin' ? 'Panel del Club' : 'Área del Socio'}
+      </h1>
       <div className="flex items-center gap-3">
         <span className="font-medium text-sol-blue">{displayName}</span>
 
