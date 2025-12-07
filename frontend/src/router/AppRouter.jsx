@@ -14,6 +14,7 @@ import DetalleSocioPage from '../pages/socios/DetalleSocioPage';
 import HistorialPagosPage from '../pages/socios/HistorialPagosPage';
 import HistorialAsistenciasPage from '../pages/socios/HistorialAsistenciasPage';
 import SocioFormPage from '../pages/socios/SocioFormPage';
+import ProfilePage from '../pages/profile/ProfilePage';
 
 export default function AppRouter() {
   return (
@@ -54,6 +55,7 @@ export default function AppRouter() {
           />
           <Route path="socios/crear" element={<SocioFormPage />} />
           <Route path="/socios/editar/:id" element={<SocioFormPage />} />
+          <Route path="perfil" element={<ProfilePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

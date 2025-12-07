@@ -23,7 +23,7 @@ export default function LoginPage() {
       login(token);
 
       const me = await meRequest();
-      setUser(me);
+      setUser(me.user ?? me);
 
       navigate('/dashboard');
     } catch (err) {

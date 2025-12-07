@@ -13,7 +13,7 @@ export async function registrarAsistencia(socioId) {
     notes: ''
   });
 
-  return res.data;
+  return res.data.asistencia;
 }
 
 // Obtener historial real

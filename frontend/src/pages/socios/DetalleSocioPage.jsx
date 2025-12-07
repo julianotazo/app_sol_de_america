@@ -125,11 +125,11 @@ export default function DetalleSocioPage() {
         is_paid: true
       };
 
-      const resp = await registrarPago(id, body);
+      const pago = await registrarPago(id, body);
 
       setPagos((prev) => [
         {
-          id: resp.id, // ✔ CORRECTO: el backend devuelve { id: X }
+          id: pago.id,
           month_year: body.month_year,
           is_paid: true
         },
@@ -285,6 +285,7 @@ export default function DetalleSocioPage() {
         isOpen={modalAsistencia}
         onClose={() => setModalAsistencia(false)}
         onConfirm={handleConfirmarAsistencia}
+        socio={socio}
       />
 
       <ModalPago
