@@ -3,17 +3,14 @@ import { pool } from '../../config/db.js';
 const DEFAULT_SOCIO_ROLE_ID = 2;
 const DEFAULT_SEDE_BRANCH_ID = 2;
 
-async function getUserIdFromClubUser(clubUserId) {
-  const result = await pool.query(
-    'SELECT user_id FROM club_users WHERE id = $1',
-    [clubUserId]
-  );
+async function assertClubUserExists(clubUserId) {
+  const result = await pool.query('SELECT 1 FROM club_users WHERE id = $1', [
+    clubUserId
+  ]);
 
   if (!result.rows.length) {
     throw new Error('SOCIO_NOT_FOUND');
   }
-
-  return result.rows[0].user_id;
 }
 // LISTAR SOCIOS
 export async function getAllSocios() {
@@ -216,7 +213,7 @@ export async function deleteSocio(clubUserId) {
 
 // PAGOS (cuotas)
 export async function addPago(clubUserId, data) {
-  const userId = await getUserIdFromClubUser(clubUserId);
+  await assertClubUserExists(clubUserId);
   const query = `
     INSERT INTO membership_status
       (user_id, month_year, is_paid, payment_state_id, member_state_id)
@@ -227,7 +224,7 @@ export async function addPago(clubUserId, data) {
   const isPaid = data.is_paid ?? (data.payment_state_id ? true : false);
 
   const result = await pool.query(query, [
-    userId,
+    clubUserId,
     data.month_year,
     isPaid,
     data.payment_state_id,
@@ -238,7 +235,7 @@ export async function addPago(clubUserId, data) {
 }
 
 export async function getPagos(clubUserId) {
-  const userId = await getUserIdFromClubUser(clubUserId);
+  await assertClubUserExists(clubUserId);
   const query = `
     SELECT
       ms.id,
@@ -257,7 +254,7 @@ export async function getPagos(clubUserId) {
     ORDER BY ms.month_year DESC;
   `;
 
-  const result = await pool.query(query, [userId]);
+  const result = await pool.query(query, [clubUserId]);
   return result.rows;
 }
 
