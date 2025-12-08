@@ -3,6 +3,15 @@ import { pool } from '../../config/db.js';
 const DEFAULT_SOCIO_ROLE_ID = 2;
 const DEFAULT_SEDE_BRANCH_ID = 2;
 
+async function assertClubUserExists(clubUserId) {
+  const result = await pool.query('SELECT 1 FROM club_users WHERE id = $1', [
+    clubUserId
+  ]);
+
+  if (!result.rows.length) {
+    throw new Error('SOCIO_NOT_FOUND');
+  }
+}
 // LISTAR SOCIOS
 export async function getAllSocios() {
   const query = `
@@ -204,6 +213,7 @@ export async function deleteSocio(clubUserId) {
 
 // PAGOS (cuotas)
 export async function addPago(clubUserId, data) {
+  await assertClubUserExists(clubUserId);
   const query = `
     INSERT INTO membership_status
       (user_id, month_year, is_paid, payment_state_id, member_state_id)
@@ -214,7 +224,7 @@ export async function addPago(clubUserId, data) {
   const isPaid = data.is_paid ?? (data.payment_state_id ? true : false);
 
   const result = await pool.query(query, [
-    clubUserId, // ← ahora sí va a user_id
+    clubUserId,
     data.month_year,
     isPaid,
     data.payment_state_id,
@@ -225,6 +235,7 @@ export async function addPago(clubUserId, data) {
 }
 
 export async function getPagos(clubUserId) {
+  await assertClubUserExists(clubUserId);
   const query = `
     SELECT
       ms.id,

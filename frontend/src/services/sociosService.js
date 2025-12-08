@@ -14,6 +14,12 @@ const estadoReverseMap = {
   SUSPENDIDO: 'suspendido'
 };
 
+const splitNombre = (nombre) => {
+  const parts = nombre.trim().split(/\s+/);
+  const firstName = parts.shift() || '';
+  const lastName = parts.join(' ') || firstName; // evita vacío
+  return { firstName, lastName };
+};
 /* ================================
    OBTENER LISTA DE SOCIOS
 ================================ */
@@ -55,12 +61,13 @@ export async function obtenerSocio(id) {
    CREAR SOCIO
 ================================ */
 export async function crearSocio(data) {
+  const { firstName, lastName } = splitNombre(data.nombre);
   const payload = {
     dni: data.dni,
-    first_name: data.nombre.split(' ')[0],
-    last_name: data.nombre.split(' ').slice(1).join(' '),
+    first_name: firstName,
+    last_name: lastName,
     phone: data.telefono,
-    email: data.email || 'sin-email@placeholder.com',
+    email: data.email || `${data.dni || Date.now()}@sol.com`,
     address: data.direccion,
     branch_id: data.branch_id || 2,
     role_id: data.role_id || 2,
@@ -75,10 +82,11 @@ export async function crearSocio(data) {
    EDITAR SOCIO
 ================================ */
 export async function editarSocio(id, data) {
+  const { firstName, lastName } = splitNombre(data.nombre);
   const payload = {
     dni: data.dni,
-    first_name: data.nombre.split(' ')[0],
-    last_name: data.nombre.split(' ').slice(1).join(' '),
+    first_name: firstName,
+    last_name: lastName,
     phone: data.telefono,
     address: data.direccion,
     branch_id: data.branch_id,

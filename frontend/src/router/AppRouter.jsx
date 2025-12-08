@@ -6,21 +6,24 @@ import RegisterPage from '../pages/auth/RegisterPage';
 import Layout from '../components/Layout';
 import PrivateRoute from './PrivateRoute';
 import AdminRoute from './AdminRoute';
+import HomeRedirect from './HomeRedirect';
 
 // Páginas del sistema
 import DashboardPage from '../pages/dashboard/DashboardPage';
+import SocioWelcomePage from '../pages/dashboard/SocioWelcomePage';
 import SociosPage from '../pages/socios/SociosPage';
 import DetalleSocioPage from '../pages/socios/DetalleSocioPage';
 import HistorialPagosPage from '../pages/socios/HistorialPagosPage';
 import HistorialAsistenciasPage from '../pages/socios/HistorialAsistenciasPage';
 import SocioFormPage from '../pages/socios/SocioFormPage';
+import ProfilePage from '../pages/profile/ProfilePage';
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         {/* RUTAS PÚBLICAS */}
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
 
         {/* REGISTER: solo admin logueado */}
         <Route
@@ -44,16 +47,65 @@ export default function AppRouter() {
           }
         >
           {/* Todas estas usan Layout + están protegidas */}
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="socios" element={<SociosPage />} />
-          <Route path="socios/:id" element={<DetalleSocioPage />} />
-          <Route path="socios/:id/pagos" element={<HistorialPagosPage />} />
+          <Route index element={<HomeRedirect />} />
+          <Route
+            path="dashboard"
+            element={
+              <AdminRoute>
+                <DashboardPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="socios"
+            element={
+              <AdminRoute>
+                <SociosPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="socios/:id"
+            element={
+              <AdminRoute>
+                <DetalleSocioPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="socios/:id/pagos"
+            element={
+              <AdminRoute>
+                <HistorialPagosPage />
+              </AdminRoute>
+            }
+          />
           <Route
             path="socios/:id/asistencias"
-            element={<HistorialAsistenciasPage />}
+            element={
+              <AdminRoute>
+                <HistorialAsistenciasPage />
+              </AdminRoute>
+            }
           />
-          <Route path="socios/crear" element={<SocioFormPage />} />
-          <Route path="/socios/editar/:id" element={<SocioFormPage />} />
+          <Route
+            path="socios/crear"
+            element={
+              <AdminRoute>
+                <SocioFormPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="socios/editar/:id"
+            element={
+              <AdminRoute>
+                <SocioFormPage />
+              </AdminRoute>
+            }
+          />
+          <Route path="bienvenida" element={<SocioWelcomePage />} />
+          <Route path="perfil" element={<ProfilePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

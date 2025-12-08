@@ -4,5 +4,5 @@ import { useAuthStore } from '../store/authStore';
 export default function PrivateRoute({ children }) {
   const token = useAuthStore((state) => state.token);
 
-  return token ? children : <Navigate to="/" />;
+  return token ? children : <Navigate to="/login" replace />;
 }

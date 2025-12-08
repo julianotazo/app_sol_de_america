@@ -43,13 +43,17 @@ export default function SociosPage() {
   const sociosFiltrados = socios.filter((s) => {
     const busqueda = search.toLowerCase();
 
-    const coincideBusqueda =
-      s.nombre.toLowerCase().includes(busqueda) ||
-      s.dni.includes(search) ||
-      s.nroSocio.toString().includes(search);
+    const nombre = s.nombre?.toLowerCase() || '';
+    const dni = s.dni?.toString() || '';
+    const numeroSocio = s.nroSocio?.toString() || '';
+    const socioEstado = s.estado?.toLowerCase() || '';
 
-    const coincideEstado =
-      estado === 'todos' || s.estado.toLowerCase() === estado;
+    const coincideBusqueda =
+      nombre.includes(busqueda) ||
+      dni.includes(search) ||
+      numeroSocio.includes(search);
+
+    const coincideEstado = estado === 'todos' || socioEstado === estado;
 
     return coincideBusqueda && coincideEstado;
   });

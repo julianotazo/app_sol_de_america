@@ -3,7 +3,7 @@ import api from './api';
 // Registrar un pago real
 export async function registrarPago(socioId, data) {
   const res = await api.post(`/socios/${socioId}/pagos`, data);
-  return res.data;
+  return res.data.pago;
 }
 
 // Obtener pagos reales del backend

@@ -3,6 +3,7 @@ import { loginRequest, meRequest } from '../../services/auth';
 import { useAuthStore } from '../../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
+import { resolveRole } from '../../utils/roles';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -23,9 +24,11 @@ export default function LoginPage() {
       login(token);
 
       const me = await meRequest();
-      setUser(me);
+      const userData = me.user ?? me;
+      setUser(userData);
 
-      navigate('/dashboard');
+      const role = resolveRole(userData, token);
+      navigate(role === 'admin' ? '/dashboard' : '/bienvenida');
     } catch (err) {
       setError(err?.response?.data?.error || 'Error al iniciar sesión');
     }

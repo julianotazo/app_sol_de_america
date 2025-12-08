@@ -83,6 +83,9 @@ export async function addPagoController(req, res, next) {
     const pago = await addPago(Number(id), req.body);
     res.status(201).json({ message: 'Pago registrado', pago });
   } catch (error) {
+    if (error.message === 'SOCIO_NOT_FOUND') {
+      return res.status(404).json({ error: 'Socio no encontrado' });
+    }
     next(error);
   }
 }
@@ -93,6 +96,9 @@ export async function listPagosController(req, res, next) {
     const pagos = await getPagos(Number(id));
     res.json(pagos);
   } catch (error) {
+    if (error.message === 'SOCIO_NOT_FOUND') {
+      return res.status(404).json({ error: 'Socio no encontrado' });
+    }
     next(error);
   }
 }
