@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 
 import Layout from '../components/Layout';
 import PrivateRoute from './PrivateRoute';
@@ -24,6 +25,7 @@ export default function AppRouter() {
       <Routes>
         {/* RUTAS PÚBLICAS */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/recuperar" element={<ForgotPasswordPage />} />
 
         {/* REGISTER: solo admin logueado */}
         <Route

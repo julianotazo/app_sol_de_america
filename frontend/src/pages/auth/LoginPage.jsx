@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { loginRequest, meRequest } from '../../services/auth';
 import { useAuthStore } from '../../store/authStore';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import { resolveRole } from '../../utils/roles';
 
@@ -137,12 +137,12 @@ export default function LoginPage() {
           {/* Link al registro */}
           <p className="text-center text-gray-600 mt-4 text-sm">
             ¿Olvidaste tu contraseña?{' '}
-            <a
-              href="/register"
+            <Link
+              to="/recuperar"
               className="text-sol-blue font-semibold hover:underline"
             >
               Recuperala
-            </a>
+            </Link>
           </p>
         </form>
       </div>
