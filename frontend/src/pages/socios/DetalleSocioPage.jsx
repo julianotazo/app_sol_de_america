@@ -74,11 +74,11 @@ export default function DetalleSocioPage() {
 
           const diferencia = (hoy - fechaPago) / (1000 * 60 * 60 * 24);
 
-          if (diferencia <= 30) setEstadoCuota('al día');
-          else if (diferencia <= 60) setEstadoCuota('pendiente');
-          else setEstadoCuota('moroso');
+          if (diferencia <= 30) setEstadoCuota('Al día');
+          else if (diferencia <= 60) setEstadoCuota('Pendiente');
+          else setEstadoCuota('Moroso');
         } else {
-          setEstadoCuota('moroso');
+          setEstadoCuota('Moroso');
         }
       } catch {
         toast.error('Error cargando pagos.');
@@ -136,7 +136,7 @@ export default function DetalleSocioPage() {
         ...prev
       ]);
 
-      setEstadoCuota('al día');
+      setEstadoCuota('Al día');
       toast.success('Pago registrado.');
     } catch {
       toast.error('Error registrando pago.');
@@ -179,23 +179,6 @@ export default function DetalleSocioPage() {
         </div>
       </div>
 
-      {/* ACCIONES */}
-      <div className="flex gap-3">
-        <button
-          onClick={() => setModalAsistencia(true)}
-          className="px-5 py-2 bg-sol-blue text-white rounded-md hover:bg-blue-800 font-medium"
-        >
-          Registrar asistencia
-        </button>
-
-        <button
-          onClick={() => navigate(`/socios/${id}/pagos`)}
-          className="px-5 py-2 bg-sol-yellow text-black rounded-md hover:bg-yellow-400 font-medium"
-        >
-          Ir al módulo de cuotas
-        </button>
-      </div>
-
       {/* ASISTENCIAS */}
       <div className="bg-white p-4 rounded-xl shadow">
         <h4 className="font-semibold text-sol-blue mb-3">
@@ -214,12 +197,21 @@ export default function DetalleSocioPage() {
           </ul>
         )}
 
-        <button
-          onClick={() => navigate(`/socios/${id}/asistencias`)}
-          className="px-4 py-2 bg-sol-blue text-white rounded-md hover:bg-blue-800 font-medium mt-4"
-        >
-          Ver historial completo
-        </button>
+        <div className="flex gap-3 mt-4">
+          <button
+            onClick={() => setModalAsistencia(true)}
+            className="px-5 py-2 bg-sol-yellow text-black rounded-md hover:bg-yellow-400 font-medium"
+          >
+            Registrar asistencia
+          </button>
+
+          <button
+            onClick={() => navigate(`/socios/${id}/asistencias`)}
+            className="px-4 py-2 bg-sol-blue text-white rounded-md hover:bg-blue-800 font-medium"
+          >
+            Ver historial completo
+          </button>
+        </div>
       </div>
 
       {/* CUOTAS */}
@@ -230,9 +222,9 @@ export default function DetalleSocioPage() {
           Estado actual:{' '}
           <span
             className={
-              estadoCuota === 'al día'
+              estadoCuota === 'Al día'
                 ? 'text-green-600 font-bold'
-                : estadoCuota === 'pendiente'
+                : estadoCuota === 'Pendiente'
                   ? 'text-yellow-600 font-bold'
                   : 'text-red-600 font-bold'
             }

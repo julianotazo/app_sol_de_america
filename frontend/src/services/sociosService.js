@@ -15,7 +15,7 @@ const estadoReverseMap = {
 };
 
 const splitNombre = (nombre) => {
-  const parts = nombre.trim().split(/\s+/);
+  const parts = nombre?.trim().split(/\s+/) || [];
   const firstName = parts.shift() || '';
   const lastName = parts.join(' ') || firstName; // evita vacío
   return { firstName, lastName };
@@ -27,7 +27,7 @@ export async function obtenerSocios() {
   const res = await api.get('/socios');
   return res.data.map((s) => ({
     id: s.club_user_id,
-    nombre: `${s.first_name} ${s.last_name}`,
+    nombre: `${s.last_name} ${s.first_name}`,
     dni: s.dni,
     nroSocio: s.club_user_id,
     rol: s.role_name,
@@ -43,16 +43,19 @@ export async function obtenerSocio(id) {
   const s = res.data;
 
   return {
-    id: s.club_user_id,
+    club_user_id: s.club_user_id,
     first_name: s.first_name,
     last_name: s.last_name,
     nombre: `${s.first_name} ${s.last_name}`,
     dni: s.dni,
-    telefono: s.phone || '',
-    direccion: s.address || '',
+    birth_date: s.birth_date ? s.birth_date.slice(0, 10) : '',
+    phone: s.phone || '',
+    address: s.address || '',
     email: s.email,
     branch_id: s.branch_id,
+    branch_name: s.branch_name,
     role_id: s.role_id,
+    role_name: s.role_name,
     estado: estadoReverseMap[s.member_state_label?.toUpperCase()] || 'activo'
   };
 }
@@ -61,15 +64,19 @@ export async function obtenerSocio(id) {
    CREAR SOCIO
 ================================ */
 export async function crearSocio(data) {
-  const { firstName, lastName } = splitNombre(data.nombre);
+  const { firstName, lastName } =
+    data.first_name && data.last_name
+      ? { firstName: data.first_name, lastName: data.last_name }
+      : splitNombre(data.nombre);
   const payload = {
     dni: data.dni,
     first_name: firstName,
     last_name: lastName,
+    birth_date: data.birth_date || null,
     phone: data.telefono,
     email: data.email || `${data.dni || Date.now()}@sol.com`,
     address: data.direccion,
-    branch_id: data.branch_id || 2,
+    branch_id: data.branch_id ? Number(data.branch_id) : 2,
     role_id: data.role_id || 2,
     member_state_id: estadoMap[data.estado]
   };
@@ -82,14 +89,19 @@ export async function crearSocio(data) {
    EDITAR SOCIO
 ================================ */
 export async function editarSocio(id, data) {
-  const { firstName, lastName } = splitNombre(data.nombre);
+  const { firstName, lastName } =
+    data.first_name && data.last_name
+      ? { firstName: data.first_name, lastName: data.last_name }
+      : splitNombre(data.nombre);
   const payload = {
     dni: data.dni,
     first_name: firstName,
     last_name: lastName,
+    birth_date: data.birth_date || null,
     phone: data.telefono,
+    email: data.email,
     address: data.direccion,
-    branch_id: data.branch_id,
+    branch_id: data.branch_id ? Number(data.branch_id) : undefined,
     role_id: data.role_id,
     member_state_id: estadoMap[data.estado]
   };

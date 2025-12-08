@@ -136,12 +136,12 @@ export default function LoginPage() {
 
           {/* Link al registro */}
           <p className="text-center text-gray-600 mt-4 text-sm">
-            ¿No tenés cuenta?{' '}
+            ¿Olvidaste tu contraseña?{' '}
             <a
               href="/register"
               className="text-sol-blue font-semibold hover:underline"
             >
-              Registrate aquí
+              Recuperala
             </a>
           </p>
         </form>

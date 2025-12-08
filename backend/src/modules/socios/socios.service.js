@@ -126,6 +126,18 @@ export async function createSocio(data) {
     };
   } catch (err) {
     await client.query('ROLLBACK');
+    if (err.code === '23505') {
+      const error = new Error('El usuario ya existe');
+      error.status = 409;
+
+      if (err.constraint === 'users_dni_key') {
+        error.message = 'Ya existe un socio con ese DNI.';
+      } else if (err.constraint === 'users_email_unique') {
+        error.message = 'Ya existe un socio con ese email.';
+      }
+
+      throw error;
+    }
     throw err;
   } finally {
     client.release();
@@ -203,12 +215,44 @@ export async function updateSocio(clubUserId, data) {
   }
 }
 
-// ELIMINAR SOCIO → borra solo club_users
+// ELIMINAR SOCIO → borra club_user, user y datos relacionados
 export async function deleteSocio(clubUserId) {
-  const result = await pool.query('DELETE FROM club_users WHERE id = $1', [
-    clubUserId
-  ]);
-  return result.rowCount; // 0 = no existía, 1 = eliminado
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Obtener user_id para eliminarlo también
+    const rel = await client.query('SELECT user_id FROM club_users WHERE id = $1', [
+      clubUserId
+    ]);
+
+    if (!rel.rowCount) {
+      await client.query('ROLLBACK');
+      return 0; // no existía
+    }
+
+    const userId = rel.rows[0].user_id;
+
+    // Borrar dependencias que referencian al club_user
+    await client.query('DELETE FROM attendances WHERE club_user_id = $1', [
+      clubUserId
+    ]);
+    await client.query('DELETE FROM membership_status WHERE user_id = $1', [
+      userId
+    ]);
+
+    // Borrar club_user y user asociado
+    await client.query('DELETE FROM club_users WHERE id = $1', [clubUserId]);
+    await client.query('DELETE FROM users WHERE id = $1', [userId]);
+
+    await client.query('COMMIT');
+    return 1; // eliminado correctamente
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 // PAGOS (cuotas)
