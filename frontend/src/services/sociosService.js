@@ -27,7 +27,7 @@ export async function obtenerSocios() {
   const res = await api.get('/socios');
   return res.data.map((s) => ({
     id: s.club_user_id,
-    nombre: `${s.first_name} ${s.last_name}`,
+    nombre: `${s.last_name} ${s.first_name}`,
     dni: s.dni,
     nroSocio: s.club_user_id,
     rol: s.role_name,
@@ -48,6 +48,7 @@ export async function obtenerSocio(id) {
     last_name: s.last_name,
     nombre: `${s.first_name} ${s.last_name}`,
     dni: s.dni,
+    birth_date: s.birth_date ? s.birth_date.slice(0, 10) : '',
     telefono: s.phone || '',
     direccion: s.address || '',
     email: s.email,
@@ -69,10 +70,11 @@ export async function crearSocio(data) {
     dni: data.dni,
     first_name: firstName,
     last_name: lastName,
+    birth_date: data.birth_date || null,
     phone: data.telefono,
     email: data.email || `${data.dni || Date.now()}@sol.com`,
     address: data.direccion,
-    branch_id: data.branch_id || 2,
+    branch_id: data.branch_id ? Number(data.branch_id) : 2,
     role_id: data.role_id || 2,
     member_state_id: estadoMap[data.estado]
   };
@@ -93,9 +95,11 @@ export async function editarSocio(id, data) {
     dni: data.dni,
     first_name: firstName,
     last_name: lastName,
+    birth_date: data.birth_date || null,
     phone: data.telefono,
+    email: data.email,
     address: data.direccion,
-    branch_id: data.branch_id,
+    branch_id: data.branch_id ? Number(data.branch_id) : undefined,
     role_id: data.role_id,
     member_state_id: estadoMap[data.estado]
   };
