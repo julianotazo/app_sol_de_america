@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { pool } from '../../config/db.js';
 
 const DEFAULT_SOCIO_ROLE_ID = 2;
@@ -101,6 +102,13 @@ export async function createSocio(data) {
     );
 
     const user = userRes.rows[0];
+
+    // Crear credenciales locales con la contraseña = DNI
+    const passwordHash = await bcrypt.hash(data.dni, 10);
+    await client.query(
+      `INSERT INTO auth_local (user_id, password_hash) VALUES ($1, $2)`,
+      [user.id, passwordHash]
+    );
 
     // 🔥 NUEVO: aseguramos que siempre tenga un estado
     const memberState = data.member_state_id ?? 1; // 1 = activo

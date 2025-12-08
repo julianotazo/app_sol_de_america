@@ -60,6 +60,9 @@ export async function registerUser(data) {
 }
 
 export async function loginUser({ email, password }) {
+   if (!email) {
+    throw new Error('Ingresar un correo electrónico');
+  }
   // buscamos por email y traemos también el rol (y su nombre)
   const credRes = await pool.query(
     `SELECT 
@@ -67,6 +70,7 @@ export async function loginUser({ email, password }) {
         u.first_name,
         u.last_name,
         u.email,
+        u.dni,
         al.password_hash,
         cu.role_id,
         r.name AS role_name
