@@ -24,7 +24,7 @@ export default function Sidebar() {
       ];
 
   return (
-    <aside className="w-64 bg-sol-blue text-white h-screen p-4 flex flex-col">
+    <aside className="w-64 bg-sol-blue text-white h-screen sticky top-0 p-4 flex flex-col flex-shrink-0">
       {/* Logo */}
       <div className="flex flex-col items-center mb-8">
         <img src={logo} alt="Escudo Sol de América" className="w-28 mb-2" />

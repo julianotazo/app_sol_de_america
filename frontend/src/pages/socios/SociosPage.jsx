@@ -118,7 +118,7 @@ export default function SociosPage() {
         <table className="w-full table-auto">
           <thead className="bg-sol-blue text-white">
             <tr>
-              <th className="p-3 text-left">Nombre</th>
+              <th className="p-3 text-left">Nombre y Apellido</th>
               <th className="p-3 text-left">DNI</th>
               <th className="p-3 text-left">N° Socio</th>
               <th className="p-3 text-left">Rol</th>

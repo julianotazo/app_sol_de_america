@@ -15,7 +15,7 @@ const estadoReverseMap = {
 };
 
 const splitNombre = (nombre) => {
-  const parts = nombre.trim().split(/\s+/);
+  const parts = nombre?.trim().split(/\s+/) || [];
   const firstName = parts.shift() || '';
   const lastName = parts.join(' ') || firstName; // evita vacío
   return { firstName, lastName };
@@ -61,7 +61,10 @@ export async function obtenerSocio(id) {
    CREAR SOCIO
 ================================ */
 export async function crearSocio(data) {
-  const { firstName, lastName } = splitNombre(data.nombre);
+  const { firstName, lastName } =
+    data.first_name && data.last_name
+      ? { firstName: data.first_name, lastName: data.last_name }
+      : splitNombre(data.nombre);
   const payload = {
     dni: data.dni,
     first_name: firstName,
@@ -82,7 +85,10 @@ export async function crearSocio(data) {
    EDITAR SOCIO
 ================================ */
 export async function editarSocio(id, data) {
-  const { firstName, lastName } = splitNombre(data.nombre);
+  const { firstName, lastName } =
+    data.first_name && data.last_name
+      ? { firstName: data.first_name, lastName: data.last_name }
+      : splitNombre(data.nombre);
   const payload = {
     dni: data.dni,
     first_name: firstName,
