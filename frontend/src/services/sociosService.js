@@ -76,7 +76,7 @@ export async function crearSocio(data) {
     last_name: lastName,
     birth_date: data.birth_date || null,
     phone: data.telefono,
-    email: data.email || `${data.dni || Date.now()}@sol.com`,
+    email: data.email,
     address: data.direccion,
     branch_id: data.branch_id ? Number(data.branch_id) : 2,
     role_id: data.role_id || 2,

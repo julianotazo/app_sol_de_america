@@ -52,6 +52,10 @@ export default function RegisterPage() {
     if (!form.first_name) err.first_name = 'El nombre es obligatorio.';
     if (!form.last_name) err.last_name = 'El apellido es obligatorio.';
 
+    if (!form.phone) err.phone = 'El teléfono es obligatorio.';
+    if (form.phone && !/^\d+$/.test(form.phone))
+      err.phone = 'El teléfono solo debe tener números.';
+
     setErrors(err);
     return Object.keys(err).length === 0;
   };
@@ -80,7 +84,7 @@ export default function RegisterPage() {
         first_name: form.first_name,
         last_name: form.last_name,
         birth_date: form.birth_date || undefined,
-        phone: form.phone || undefined,
+        phone: form.phone,
         address: form.address || undefined
       };
 
@@ -89,7 +93,7 @@ export default function RegisterPage() {
 
       await registerRequest(payload);
 
-      toast.success('Registro exitoso 🎉 Ya podés iniciar sesión.');
+      toast.success('Usuario registrado exitosamente.');
 
       setForm({
         email: '',
@@ -104,10 +108,26 @@ export default function RegisterPage() {
         role_id: ''
       });
     } catch (error) {
-      toast.error(
-        error?.response?.data?.error ||
-          'Error inesperado durante el registro 😢'
-      );
+      const serverMessage = error?.response?.data?.error;
+      const newErrors = {};
+
+      if (serverMessage?.toLowerCase().includes('email')) {
+        newErrors.email = serverMessage;
+      }
+
+      if (serverMessage?.toLowerCase().includes('tel')) {
+        newErrors.phone = serverMessage;
+      }
+
+      if (serverMessage?.toLowerCase().includes('dni')) {
+        newErrors.dni = serverMessage;
+      }
+
+      if (Object.keys(newErrors).length) {
+        setErrors((prev) => ({ ...prev, ...newErrors }));
+      }
+
+      toast.error(serverMessage || 'Error inesperado durante el registro 😢');
     } finally {
       setLoading(false);
     }
@@ -151,6 +171,8 @@ export default function RegisterPage() {
 
       if (name === 'dni') {
         // dejar solo números
+        value = value.replace(/\D/g, '');
+      } else if (name === 'phone') {
         value = value.replace(/\D/g, '');
       }
 

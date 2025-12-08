@@ -5,26 +5,24 @@ exports.shorthands = {
   }
 };
 
+  // USERS
 exports.up = (pgm) => {
-  // USERS (antes persons)
   pgm.createTable('users', {
     id: 'id',
     dni: { type: 'varchar(20)', notNull: true },
     last_name: { type: 'varchar(100)', notNull: true },
     first_name: { type: 'varchar(100)', notNull: true },
     birth_date: { type: 'date' },
-    phone: { type: 'varchar(30)' },
-    email: { type: 'varchar(180)', notNull: false },
+    phone: { type: 'varchar(30)', notNull: true },
+    email: { type: 'varchar(180)', notNull: true },
     address: { type: 'varchar(200)' },
     created_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') },
     updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') }
   });
 
   pgm.addConstraint('users', 'users_dni_key', { unique: ['dni'] });
-  // opcional pero recomendable: email único donde no sea null
-  pgm.addConstraint('users', 'users_email_unique', {
-    unique: ['email']
-  });
+  pgm.addConstraint('users', 'users_email_unique', { unique: ['email'] });
+  pgm.addConstraint('users', 'users_phone_unique', { unique: ['phone'] });
 
   // BRANCHES
   pgm.createTable('branches', {
@@ -75,7 +73,7 @@ exports.up = (pgm) => {
   // CLUB_USERS (persona dentro del club)
   pgm.createTable('club_users', {
     id: 'id',
-    user_id: { type: 'integer', notNull: true }, // antes person_id
+    user_id: { type: 'integer', notNull: true },
     branch_id: { type: 'integer', notNull: true },
     role_id: { type: 'integer', notNull: true },
     active: { type: 'boolean', default: true },
@@ -108,7 +106,7 @@ exports.up = (pgm) => {
   // MEMBERSHIP_STATUS (estado de cuotas por club_user)
   pgm.createTable('membership_status', {
     id: 'id',
-    user_id: { type: 'integer', notNull: true }, // aquí es club_users.id
+    user_id: { type: 'integer', notNull: true }, // referencia a club_users.id
     month_year: { type: 'varchar(20)', notNull: true },
     is_paid: { type: 'boolean', notNull: true, default: false },
     updated_at: { type: 'timestamp', default: pgm.func('CURRENT_TIMESTAMP') }
@@ -166,7 +164,7 @@ exports.up = (pgm) => {
   pgm.createTable('team_players', {
     id: 'id',
     team_id: { type: 'integer', notNull: true },
-    user_id: { type: 'integer', notNull: true }, // club_users.id
+    user_id: { type: 'integer', notNull: true }, // referencia a club_users.id
     joined_at: { type: 'date', default: pgm.func('CURRENT_DATE') },
     status: { type: 'varchar(20)', default: 'ACTIVO' }
   });

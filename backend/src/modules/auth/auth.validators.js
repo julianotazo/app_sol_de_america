@@ -8,7 +8,7 @@ const registerSchema = z.object({
   first_name: z.string().min(2),
   last_name: z.string().min(2),
   birth_date: z.string().optional(), // ISO date o vacío
-  phone: z.string().optional(),
+  phone: z.string().min(6),
   address: z.string().optional(),
 
   branch_id: z.number().int().optional(),

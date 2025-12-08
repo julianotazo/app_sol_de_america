@@ -5,6 +5,19 @@ import jwt from 'jsonwebtoken';
 const DEFAULT_SOCIO_ROLE_ID = 2;
 const DEFAULT_SEDE_BRANCH_ID = 2;
 const DEFAULT_MEMBER_STATE_ID = 1;
+const UNIQUE_MESSAGES = {
+  users_email_unique: 'email ya registrado',
+  users_phone_unique: 'teléfono ya registrado',
+  users_dni_key: 'dni ya registrado'
+};
+
+function handleUniqueConstraint(err) {
+  if (err.code === '23505' && UNIQUE_MESSAGES[err.constraint]) {
+    const friendlyError = new Error(UNIQUE_MESSAGES[err.constraint]);
+    friendlyError.status = 409;
+    throw friendlyError;
+  }
+}
 
 export async function registerUser(data) {
   const client = await pool.connect();
@@ -22,7 +35,7 @@ export async function registerUser(data) {
         data.last_name,
         data.first_name,
         data.birth_date ?? null,
-        data.phone ?? null,
+        data.phone,
         data.email,
         data.address ?? null
       ]
@@ -53,6 +66,7 @@ export async function registerUser(data) {
     return user;
   } catch (err) {
     await client.query('ROLLBACK');
+    handleUniqueConstraint(err);
     throw err;
   } finally {
     client.release();
@@ -60,7 +74,7 @@ export async function registerUser(data) {
 }
 
 export async function loginUser({ email, password }) {
-   if (!email) {
+  if (!email) {
     throw new Error('Ingresar un correo electrónico');
   }
   // buscamos por email y traemos también el rol (y su nombre)
