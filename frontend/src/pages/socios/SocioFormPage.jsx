@@ -131,7 +131,10 @@ export default function SocioFormPage() {
       navigate('/socios');
     } catch (err) {
       console.error(err);
-      toast.error('No se pudo guardar.');
+      const serverError =
+        err?.response?.data?.error || err?.response?.data?.message;
+
+      toast.error(serverError || 'No se pudo guardar.');
     } finally {
       setGuardando(false);
     }
