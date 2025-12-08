@@ -43,17 +43,19 @@ export async function obtenerSocio(id) {
   const s = res.data;
 
   return {
-    id: s.club_user_id,
+    club_user_id: s.club_user_id,
     first_name: s.first_name,
     last_name: s.last_name,
     nombre: `${s.first_name} ${s.last_name}`,
     dni: s.dni,
     birth_date: s.birth_date ? s.birth_date.slice(0, 10) : '',
-    telefono: s.phone || '',
-    direccion: s.address || '',
+    phone: s.phone || '',
+    address: s.address || '',
     email: s.email,
     branch_id: s.branch_id,
+    branch_name: s.branch_name,
     role_id: s.role_id,
+    role_name: s.role_name,
     estado: estadoReverseMap[s.member_state_label?.toUpperCase()] || 'activo'
   };
 }
