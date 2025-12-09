@@ -1,8 +1,56 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { meRequest, updateProfileRequest } from '../../services/auth';
-import { User, IdCard, Phone, MapPin, Mail, Calendar, Building, Pencil, XCircle } from 'lucide-react';
+import {
+  User,
+  IdCard,
+  Phone,
+  MapPin,
+  Mail,
+  Calendar,
+  Building,
+  Pencil,
+  XCircle
+} from 'lucide-react';
+
+// Input reutilizable con icono (igual estilo que CrearSocio)
+const InputWithIcon = ({
+  label,
+  id,
+  name,
+  type = 'text',
+  value,
+  onChange,
+  icon: Icon,
+  disabled = false
+}) => (
+  <label className="block w-full">
+    <span className="text-gray-700 font-medium">{label}</span>
+    <div className="relative mt-1">
+      {Icon && (
+        <Icon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+      )}
+      <input
+        id={id}
+        name={name}
+        type={type}
+        value={value ?? ''}
+        onChange={onChange}
+        disabled={disabled}
+        readOnly={disabled}
+        className={`
+            ${Icon ? 'pl-10' : 'pl-3'}
+            p-2 w-full border rounded-lg
+            focus:outline-none
+            transition-all duration-200
+            ${disabled ? 'bg-gray-50 text-gray-700 cursor-default' : 'bg-white focus:ring-2 focus:ring-sol-blue/40'}
+            border-gray-300
+          `}
+      />
+    </div>
+  </label>
+);
 
 const formatDateForInput = (value) =>
   value ? new Date(value).toISOString().split('T')[0] : '';
@@ -54,25 +102,38 @@ export default function ProfilePage() {
     [user]
   );
 
+  const syncFormWithUser = useCallback(() => {
+    if (!user) return;
+
+    setFormData({
+      first_name: user.first_name ?? '',
+      last_name: user.last_name ?? '',
+      email: user.email ?? '',
+      phone: user.phone ?? '',
+      address: user.address ?? '',
+      birth_date: formatDateForInput(user.birth_date),
+      dni: user.dni ?? ''
+    });
+  }, [user]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleToggleEditing = () => {
-    if (!isEditing && user) {
-      setFormData({
-        first_name: user.first_name ?? '',
-        last_name: user.last_name ?? '',
-        email: user.email ?? '',
-        phone: user.phone ?? '',
-        address: user.address ?? '',
-        birth_date: formatDateForInput(user.birth_date),
-        dni: user.dni ?? ''
-      });
-    }
+    if (!user) return;
 
-    setIsEditing((prev) => !prev);
+    setStatusMessage('');
+    setErrorMessage('');
+
+    setIsEditing((prev) => {
+      const next = !prev;
+      if (next) {
+        syncFormWithUser();
+      }
+      return next;
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -111,44 +172,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Input reutilizable con icono (igual estilo que CrearSocio)
-  const InputWithIcon = ({
-    label,
-    id,
-    name,
-    type = 'text',
-    value,
-    onChange,
-    icon: Icon,
-    disabled = false
-  }) => (
-    <label className="block w-full">
-      <span className="text-gray-700 font-medium">{label}</span>
-      <div className="relative mt-1">
-        {Icon && (
-          <Icon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-        )}
-        <input
-          id={id}
-          name={name}
-          type={type}
-          value={value ?? ''}
-          onChange={onChange}
-          disabled={disabled}
-          readOnly={disabled}
-          className={`
-            ${Icon ? 'pl-10' : 'pl-3'}
-            p-2 w-full border rounded-lg
-            focus:outline-none
-            transition-all duration-200
-            ${disabled ? 'bg-gray-50 text-gray-700 cursor-default' : 'bg-white focus:ring-2 focus:ring-sol-blue/40'}
-            border-gray-300
-          `}
-        />
-      </div>
-    </label>
-  );
-
   const getEstadoStyles = (estado) => {
     switch (estado?.toLowerCase()) {
       case 'activo':
@@ -162,13 +185,19 @@ export default function ProfilePage() {
     }
   };
 
+  const memberStateLabel = useMemo(() => {
+    if (!user) return null;
+    if (user.member_state_label) return user.member_state_label;
+    if (user.estado) return user.estado;
+    if (user.active !== undefined) return user.active ? 'Activo' : 'Inactivo';
+    return null;
+  }, [user]);
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Título */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-sol-blue">
-          Perfil del usuario
-        </h1>
+        <h1 className="text-3xl font-bold text-sol-blue">Perfil del usuario</h1>
         <p className="text-gray-600 mt-1">
           Revisa tu información personal y gestiona tus datos de socio.
         </p>
@@ -193,13 +222,13 @@ export default function ProfilePage() {
               {user?.email || 'Sin correo registrado'}
             </p>
             {/* Estado del socio */}
-            {user?.active !== undefined && (
+            {memberStateLabel && (
               <p
                 className={`inline-flex items-center mt-2 px-3 py-1 rounded-full text-xs font-semibold border ${getEstadoStyles(
-                  user.active ? 'activo' : user.estado || 'inactivo'
+                  memberStateLabel
                 )}`}
               >
-                {user.estado || (user.active ? 'Activo' : 'Inactivo')}
+                {memberStateLabel}
               </p>
             )}
           </div>
@@ -221,8 +250,6 @@ export default function ProfilePage() {
             {!isEditing && <Pencil className="w-5 h-5" />}
             {isEditing && <XCircle className="w-4 h-4" />}
           </button>
-
-
         </div>
       </div>
 

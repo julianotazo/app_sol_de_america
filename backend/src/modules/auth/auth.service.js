@@ -6,9 +6,9 @@ const DEFAULT_SOCIO_ROLE_ID = 2;
 const DEFAULT_SEDE_BRANCH_ID = 2;
 const DEFAULT_MEMBER_STATE_ID = 1;
 const UNIQUE_MESSAGES = {
-  users_email_unique: 'email ya registrado',
-  users_phone_unique: 'teléfono ya registrado',
-  users_dni_key: 'dni ya registrado'
+  users_email_unique: 'Email ya registrado',
+  users_phone_unique: 'Teléfono ya registrado',
+  users_dni_key: 'DNI ya registrado'
 };
 
 function handleUniqueConstraint(err) {
@@ -143,11 +143,15 @@ export async function getUserProfile(userId) {
         cu.branch_id,
         b.name AS branch,
         cu.join_date,
-        cu.active
+        cu.active,
+        cu.member_state_id,
+        ms.code AS member_state_code,
+        ms.label AS member_state_label
      FROM public.users u
      LEFT JOIN public.club_users cu ON cu.user_id = u.id
      LEFT JOIN public.roles r ON r.id = cu.role_id
      LEFT JOIN public.branches b ON b.id = cu.branch_id
+     LEFT JOIN public.member_states ms ON ms.id = cu.member_state_id
      WHERE u.id = $1`,
     [userId]
   );

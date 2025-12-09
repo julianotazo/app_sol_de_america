@@ -89,10 +89,8 @@ export default function SocioFormPage() {
       newErrors.first_name = 'El nombre es obligatorio.';
     if (!form.last_name.trim())
       newErrors.last_name = 'El apellido es obligatorio.';
-    if (!form.dni.trim()) 
-      newErrors.dni = 'El DNI es obligatorio.';
-    if (!form.email.trim()) 
-      newErrors.email = 'El email es obligatorio.';
+    if (!form.dni.trim()) newErrors.dni = 'El DNI es obligatorio.';
+    if (!form.email.trim()) newErrors.email = 'El email es obligatorio.';
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       newErrors.email = 'El email no es válido.';
     if (!form.telefono.trim())
@@ -230,7 +228,6 @@ export default function SocioFormPage() {
       )}
     </label>
   );
-
 
   return (
     <div className="space-y-6">

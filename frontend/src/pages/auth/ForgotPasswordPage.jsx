@@ -52,12 +52,15 @@ export default function ForgotPasswordPage() {
             ¿Olvidaste tu contraseña?
           </h2>
           <p className="text-center text-gray-600 mb-6">
-            Ingresá tu correo y te enviaremos las instrucciones para recuperarla.
+            Ingresá tu correo y te enviaremos las instrucciones para
+            recuperarla.
           </p>
 
           {/* Email */}
           <label className="block mb-6 w-full">
-            <span className="text-gray-700 font-medium">Correo electrónico</span>
+            <span className="text-gray-700 font-medium">
+              Correo electrónico
+            </span>
             <div className="relative mt-1">
               <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               <input
@@ -91,7 +94,10 @@ export default function ForgotPasswordPage() {
 
           <div className="flex items-center justify-center mt-6 text-sm text-gray-600">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            <Link to="/login" className="text-sol-blue font-semibold hover:underline">
+            <Link
+              to="/login"
+              className="text-sol-blue font-semibold hover:underline"
+            >
               Volver a iniciar sesión
             </Link>
           </div>

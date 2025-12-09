@@ -80,7 +80,9 @@ export default function LoginPage() {
 
           {/* Email */}
           <label className="block mb-4 w-full">
-            <span className="text-gray-700 font-medium">Correo electrónico</span>
+            <span className="text-gray-700 font-medium">
+              Correo electrónico
+            </span>
             <div className="relative mt-1">
               <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               <input
