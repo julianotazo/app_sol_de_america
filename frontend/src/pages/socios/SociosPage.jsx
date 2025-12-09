@@ -149,7 +149,7 @@ export default function SociosPage() {
                         s.estado === 'Activo'
                           ? 'text-green-600 font-semibold'
                           : s.estado === 'Inactivo'
-                            ? 'text-gray-500 font-semibold'
+                            ? 'text-yellow-500 font-semibold'
                             : s.estado === 'Suspendido'
                               ? 'text-red-600 font-semibold'
                               : 'text-yellow-600 font-semibold'
