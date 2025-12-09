@@ -49,10 +49,10 @@ export default function CredentialPage() {
         </h2>
         <button
           type="button"
-          onClick={() => navigate('/bienvenida')}
+          onClick={() => navigate('/perfil')}
           className="px-4 py-2 border border-sol-blue text-sol-blue rounded-lg hover:bg-blue-50"
         >
-          Volver
+          Volver al perfil
         </button>
       </div>
 

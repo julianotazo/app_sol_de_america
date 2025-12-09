@@ -1,15 +1,12 @@
 import { useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import {
-  User,
-  IdCard,
   BadgeCheck,
   PauseCircle,
   Ban,
   Info,
   ArrowRightCircle
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const getEstadoConfig = (estado) => {
   const normalized = estado?.toLowerCase();
@@ -82,37 +79,6 @@ export default function SocioWelcomePage() {
             {estadoConfig.label}
           </div>
         )}
-      </div>
-
-      {/* ACCESOS RÁPIDOS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Link
-          to="/perfil"
-          className="bg-white rounded-xl shadow p-5 border border-gray-100 hover:shadow-md transition flex items-start gap-4"
-        >
-          <User className="w-10 h-10 text-sol-blue" />
-          <div>
-            <h3 className="text-lg font-semibold text-sol-blue">Mi Perfil</h3>
-            <p className="text-gray-600 text-sm">
-              Consultá tus datos personales y mantenelos actualizados.
-            </p>
-          </div>
-        </Link>
-
-        <Link
-          to="/perfil/credencial"
-          className="bg-white rounded-xl shadow p-5 border border-gray-100 hover:shadow-md transition flex items-start gap-4"
-        >
-          <IdCard className="w-10 h-10 text-sol-blue" />
-          <div>
-            <h3 className="text-lg font-semibold text-sol-blue">
-              Mi Credencial
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Visualizá tu credencial digital como socio del club.
-            </p>
-          </div>
-        </Link>
       </div>
 
       {/* NOVEDADES */}

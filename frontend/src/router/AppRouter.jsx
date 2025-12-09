@@ -19,6 +19,9 @@ import HistorialAsistenciasPage from '../pages/socios/HistorialAsistenciasPage';
 import SocioFormPage from '../pages/socios/SocioFormPage';
 import ProfilePage from '../pages/profile/ProfilePage';
 import CredentialPage from '../pages/profile/CredentialPage';
+import JugadoresPage from '../pages/admin/JugadoresPage';
+import SedesPage from '../pages/admin/SedesPage';
+import PersonalPage from '../pages/admin/PersonalPage';
 
 export default function AppRouter() {
   return (
@@ -104,6 +107,30 @@ export default function AppRouter() {
             element={
               <AdminRoute>
                 <SocioFormPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="jugadores"
+            element={
+              <AdminRoute>
+                <JugadoresPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="sedes"
+            element={
+              <AdminRoute>
+                <SedesPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="personal"
+            element={
+              <AdminRoute>
+                <PersonalPage />
               </AdminRoute>
             }
           />
