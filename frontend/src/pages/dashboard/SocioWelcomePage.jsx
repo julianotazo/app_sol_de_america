@@ -105,7 +105,9 @@ export default function SocioWelcomePage() {
         >
           <IdCard className="w-10 h-10 text-sol-blue" />
           <div>
-            <h3 className="text-lg font-semibold text-sol-blue">Mi Credencial</h3>
+            <h3 className="text-lg font-semibold text-sol-blue">
+              Mi Credencial
+            </h3>
             <p className="text-gray-600 text-sm">
               Visualizá tu credencial digital como socio del club.
             </p>
@@ -115,10 +117,13 @@ export default function SocioWelcomePage() {
 
       {/* NOVEDADES */}
       <div className="bg-white rounded-2xl shadow p-6 border border-gray-100">
-        <h3 className="text-xl font-semibold text-sol-blue mb-2">Novedades del club</h3>
+        <h3 className="text-xl font-semibold text-sol-blue mb-2">
+          Novedades del club
+        </h3>
         <p className="text-gray-600">
-          Estamos trabajando para sumar nuevas funcionalidades pensadas para vos.  
-          Muy pronto vas a poder ver actividades, eventos y más beneficios exclusivos.
+          Estamos trabajando para sumar nuevas funcionalidades pensadas para
+          vos. Muy pronto vas a poder ver actividades, eventos y más beneficios
+          exclusivos.
         </p>
 
         <div className="flex items-center gap-2 text-sol-blue mt-3 font-medium">

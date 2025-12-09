@@ -5,7 +5,7 @@ exports.shorthands = {
   }
 };
 
-  // USERS
+// USERS
 exports.up = (pgm) => {
   pgm.createTable('users', {
     id: 'id',

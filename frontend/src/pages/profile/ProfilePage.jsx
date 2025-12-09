@@ -95,7 +95,6 @@ const getEstadoConfig = (estado) => {
   }
 };
 
-
 export default function ProfilePage() {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
