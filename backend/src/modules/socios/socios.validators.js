@@ -5,7 +5,7 @@ const baseSocioSchema = z.object({
   first_name: z.string().min(2),
   last_name: z.string().min(2),
   birth_date: z.string().optional(), // 'YYYY-MM-DD'
-  phone: z.string().optional(),
+  phone: z.string().min(6),
   email: z.string().email(),
   address: z.string().optional(),
 

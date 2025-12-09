@@ -14,3 +14,8 @@ export async function meRequest() {
   const res = await api.get('/auth/me');
   return res.data; // { user }
 }
+
+export async function updateProfileRequest(data) {
+  const res = await api.put('/auth/me', data);
+  return res.data; // { user }
+}

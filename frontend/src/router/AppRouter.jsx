@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 
 import Layout from '../components/Layout';
 import PrivateRoute from './PrivateRoute';
@@ -17,6 +18,7 @@ import HistorialPagosPage from '../pages/socios/HistorialPagosPage';
 import HistorialAsistenciasPage from '../pages/socios/HistorialAsistenciasPage';
 import SocioFormPage from '../pages/socios/SocioFormPage';
 import ProfilePage from '../pages/profile/ProfilePage';
+import CredentialPage from '../pages/profile/CredentialPage';
 
 export default function AppRouter() {
   return (
@@ -24,6 +26,7 @@ export default function AppRouter() {
       <Routes>
         {/* RUTAS PÚBLICAS */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/recuperar" element={<ForgotPasswordPage />} />
 
         {/* REGISTER: solo admin logueado */}
         <Route
@@ -106,6 +109,7 @@ export default function AppRouter() {
           />
           <Route path="bienvenida" element={<SocioWelcomePage />} />
           <Route path="perfil" element={<ProfilePage />} />
+          <Route path="perfil/credencial" element={<CredentialPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

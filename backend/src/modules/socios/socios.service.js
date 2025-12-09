@@ -1,7 +1,21 @@
+import bcrypt from 'bcryptjs';
 import { pool } from '../../config/db.js';
 
 const DEFAULT_SOCIO_ROLE_ID = 2;
 const DEFAULT_SEDE_BRANCH_ID = 2;
+const UNIQUE_MESSAGES = {
+  users_email_unique: 'Email ya registrado',
+  users_phone_unique: 'Teléfono ya registrado',
+  users_dni_key: 'DNI ya registrado'
+};
+
+function handleUniqueConstraint(err) {
+  if (err.code === '23505' && UNIQUE_MESSAGES[err.constraint]) {
+    const friendlyError = new Error(UNIQUE_MESSAGES[err.constraint]);
+    friendlyError.status = 409;
+    throw friendlyError;
+  }
+}
 
 async function assertClubUserExists(clubUserId) {
   const result = await pool.query('SELECT 1 FROM club_users WHERE id = $1', [
@@ -94,13 +108,20 @@ export async function createSocio(data) {
         data.last_name,
         data.first_name,
         data.birth_date ?? null,
-        data.phone ?? null,
+        data.phone,
         data.email,
         data.address ?? null
       ]
     );
 
     const user = userRes.rows[0];
+
+    // Crear credenciales locales con la contraseña = DNI
+    const passwordHash = await bcrypt.hash(data.dni, 10);
+    await client.query(
+      `INSERT INTO auth_local (user_id, password_hash) VALUES ($1, $2)`,
+      [user.id, passwordHash]
+    );
 
     // 🔥 NUEVO: aseguramos que siempre tenga un estado
     const memberState = data.member_state_id ?? 1; // 1 = activo
@@ -126,18 +147,7 @@ export async function createSocio(data) {
     };
   } catch (err) {
     await client.query('ROLLBACK');
-    if (err.code === '23505') {
-      const error = new Error('El usuario ya existe');
-      error.status = 409;
-
-      if (err.constraint === 'users_dni_key') {
-        error.message = 'Ya existe un socio con ese DNI.';
-      } else if (err.constraint === 'users_email_unique') {
-        error.message = 'Ya existe un socio con ese email.';
-      }
-
-      throw error;
-    }
+    handleUniqueConstraint(err);
     throw err;
   } finally {
     client.release();
@@ -209,6 +219,7 @@ export async function updateSocio(clubUserId, data) {
   } catch (err) {
     await client.query('ROLLBACK');
     if (err.message === 'SOCIO_NOT_FOUND') throw err;
+    handleUniqueConstraint(err);
     throw err;
   } finally {
     client.release();
@@ -222,9 +233,10 @@ export async function deleteSocio(clubUserId) {
     await client.query('BEGIN');
 
     // Obtener user_id para eliminarlo también
-    const rel = await client.query('SELECT user_id FROM club_users WHERE id = $1', [
-      clubUserId
-    ]);
+    const rel = await client.query(
+      'SELECT user_id FROM club_users WHERE id = $1',
+      [clubUserId]
+    );
 
     if (!rel.rowCount) {
       await client.query('ROLLBACK');
@@ -238,7 +250,7 @@ export async function deleteSocio(clubUserId) {
       clubUserId
     ]);
     await client.query('DELETE FROM membership_status WHERE user_id = $1', [
-      userId
+      clubUserId
     ]);
 
     // Borrar club_user y user asociado

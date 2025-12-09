@@ -90,11 +90,13 @@ export default function SocioFormPage() {
     if (!form.last_name.trim())
       newErrors.last_name = 'El apellido es obligatorio.';
     if (!form.dni.trim()) newErrors.dni = 'El DNI es obligatorio.';
-    if (!/^\d+$/.test(form.dni))
-      newErrors.dni = 'El DNI debe contener solo números.';
     if (!form.email.trim()) newErrors.email = 'El email es obligatorio.';
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       newErrors.email = 'El email no es válido.';
+    if (!form.telefono.trim())
+      newErrors.telefono = 'El teléfono es obligatorio.';
+    if (form.telefono && !/^\d+$/.test(form.telefono))
+      newErrors.telefono = 'El teléfono debe contener solo números.';
     if (!form.branch_id) newErrors.branch_id = 'La sede es obligatoria.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -103,8 +105,8 @@ export default function SocioFormPage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    const sanitizedValue = name === 'dni' ? value.replace(/\D/g, '') : value;
-
+    const sanitizedValue =
+      name === 'dni' || name === 'telefono' ? value.replace(/\D/g, '') : value;
     setForm({ ...form, [name]: sanitizedValue });
     setErrors({ ...errors, [name]: null });
   };
@@ -133,6 +135,23 @@ export default function SocioFormPage() {
       console.error(err);
       const serverError =
         err?.response?.data?.error || err?.response?.data?.message;
+      const fieldErrors = {};
+
+      if (serverError?.toLowerCase().includes('email')) {
+        fieldErrors.email = serverError;
+      }
+
+      if (serverError?.toLowerCase().includes('tel')) {
+        fieldErrors.telefono = serverError;
+      }
+
+      if (serverError?.toLowerCase().includes('dni')) {
+        fieldErrors.dni = serverError;
+      }
+
+      if (Object.keys(fieldErrors).length) {
+        setErrors((prev) => ({ ...prev, ...fieldErrors }));
+      }
 
       toast.error(serverError || 'No se pudo guardar.');
     } finally {
@@ -209,7 +228,6 @@ export default function SocioFormPage() {
       )}
     </label>
   );
-
 
   return (
     <div className="space-y-6">

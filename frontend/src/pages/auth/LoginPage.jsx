@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { loginRequest, meRequest } from '../../services/auth';
 import { useAuthStore } from '../../store/authStore';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import { resolveRole } from '../../utils/roles';
 
@@ -60,7 +60,7 @@ export default function LoginPage() {
 
       {/* DERECHA — FORMULARIO */}
       <div
-        className="flex justify-center items-start bg-[#eef3ff] p-6 h-screen overflow-y-auto pt-20"
+        className="flex justify-center items-center bg-[#eef3ff] p-6 h-screen overflow-y-auto"
         style={{
           backgroundImage:
             'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.5), rgba(238,243,255,1))'
@@ -80,7 +80,9 @@ export default function LoginPage() {
 
           {/* Email */}
           <label className="block mb-4 w-full">
-            <span className="text-gray-700 font-medium">Correo</span>
+            <span className="text-gray-700 font-medium">
+              Correo electrónico
+            </span>
             <div className="relative mt-1">
               <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               <input
@@ -89,7 +91,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="
-                  pl-10 p-2 w-full border rounded-lg 
+                  pl-10 p-2 w-full border rounded-lg
                   input-anim 
                   focus:ring-2 focus:ring-sol-blue/40 
                   focus:outline-none 
@@ -137,12 +139,12 @@ export default function LoginPage() {
           {/* Link al registro */}
           <p className="text-center text-gray-600 mt-4 text-sm">
             ¿Olvidaste tu contraseña?{' '}
-            <a
-              href="/register"
+            <Link
+              to="/recuperar"
               className="text-sol-blue font-semibold hover:underline"
             >
               Recuperala
-            </a>
+            </Link>
           </p>
         </form>
       </div>
