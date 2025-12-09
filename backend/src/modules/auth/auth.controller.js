@@ -78,3 +78,17 @@ export const me = async (req, res, next) => {
     next(err);
   }
 };
+
+/** Actualizar datos del usuario autenticado */
+export const updateProfile = async (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'No autenticado' });
+  }
+
+  try {
+    const user = await service.updateUserProfile(req.user.sub, req.body);
+    res.json({ user, message: 'Perfil actualizado' });
+  } catch (err) {
+    next(err);
+  }
+};

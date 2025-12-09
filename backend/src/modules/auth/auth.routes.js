@@ -18,5 +18,6 @@ r.post('/login', validate('login'), ctrl.login);
 
 // /me ahora devuelve los datos del token
 r.get('/me', ctrl.requireAuth, ctrl.me);
+r.put('/me', ctrl.requireAuth, validate('updateProfile'), ctrl.updateProfile);
 
 export default r;

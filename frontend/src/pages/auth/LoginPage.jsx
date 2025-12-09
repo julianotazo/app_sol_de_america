@@ -60,7 +60,7 @@ export default function LoginPage() {
 
       {/* DERECHA — FORMULARIO */}
       <div
-        className="flex justify-center items-start bg-[#eef3ff] p-6 h-screen overflow-y-auto pt-20"
+        className="flex justify-center items-center bg-[#eef3ff] p-6 h-screen overflow-y-auto"
         style={{
           backgroundImage:
             'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.5), rgba(238,243,255,1))'

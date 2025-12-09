@@ -158,3 +158,43 @@ export async function getUserProfile(userId) {
 
   return result.rows[0];
 }
+
+export async function updateUserProfile(userId, data) {
+  const allowedFields = [
+    'first_name',
+    'last_name',
+    'phone',
+    'email',
+    'address',
+    'birth_date',
+    'dni'
+  ];
+
+  const setClauses = [];
+  const values = [];
+
+  allowedFields.forEach((field) => {
+    if (data[field] !== undefined) {
+      values.push(data[field] ?? null);
+      setClauses.push(`${field} = $${values.length}`);
+    }
+  });
+
+  if (!setClauses.length) {
+    const err = new Error('No se enviaron datos para actualizar');
+    err.status = 400;
+    throw err;
+  }
+
+  const updateSql = `UPDATE public.users
+    SET ${setClauses.join(', ')}, updated_at = CURRENT_TIMESTAMP
+    WHERE id = $${values.length + 1}`;
+
+  try {
+    await pool.query(updateSql, [...values, userId]);
+    return await getUserProfile(userId);
+  } catch (err) {
+    handleUniqueConstraint(err);
+    throw err;
+  }
+}
