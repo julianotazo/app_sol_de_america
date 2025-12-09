@@ -11,7 +11,11 @@ import {
   Calendar,
   Building,
   Pencil,
-  XCircle
+  XCircle,
+  BadgeCheck,
+  PauseCircle,
+  Ban,
+  Info
 } from 'lucide-react';
 
 // Input reutilizable con icono (igual estilo que CrearSocio)
@@ -59,6 +63,38 @@ const formatDateForDisplay = (value) =>
   value ? new Date(value).toLocaleDateString() : '';
 
 const profileAvatar = '/default-avatar.png';
+
+const getEstadoConfig = (estado) => {
+  const normalized = estado?.toLowerCase();
+
+  switch (normalized) {
+    case 'activo':
+      return {
+        label: 'Activo',
+        className: 'bg-green-100 text-green-700 border-green-300',
+        Icon: BadgeCheck
+      };
+    case 'inactivo':
+      return {
+        label: 'Inactivo',
+        className: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+        Icon: PauseCircle
+      };
+    case 'suspendido':
+      return {
+        label: 'Suspendido',
+        className: 'bg-red-100 text-red-700 border-red-300',
+        Icon: Ban
+      };
+    default:
+      return {
+        label: estado ?? 'Sin estado',
+        className: 'bg-gray-100 text-gray-600 border-gray-300',
+        Icon: Info
+      };
+  }
+};
+
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -172,19 +208,6 @@ export default function ProfilePage() {
     }
   };
 
-  const getEstadoStyles = (estado) => {
-    switch (estado?.toLowerCase()) {
-      case 'activo':
-        return 'bg-green-100 text-green-700 border-green-300';
-      case 'inactivo':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
-      case 'suspendido':
-        return 'bg-red-100 text-red-700 border-red-300';
-      default:
-        return 'bg-gray-100 text-gray-600 border-gray-300';
-    }
-  };
-
   const memberStateLabel = useMemo(() => {
     if (!user) return null;
     if (user.member_state_label) return user.member_state_label;
@@ -192,6 +215,11 @@ export default function ProfilePage() {
     if (user.active !== undefined) return user.active ? 'Activo' : 'Inactivo';
     return null;
   }, [user]);
+
+  const memberEstadoConfig = useMemo(
+    () => getEstadoConfig(memberStateLabel),
+    [memberStateLabel]
+  );
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -222,13 +250,12 @@ export default function ProfilePage() {
               {user?.email || 'Sin correo registrado'}
             </p>
             {/* Estado del socio */}
-            {memberStateLabel && (
+            {memberEstadoConfig.label && (
               <p
-                className={`inline-flex items-center mt-2 px-3 py-1 rounded-full text-xs font-semibold border ${getEstadoStyles(
-                  memberStateLabel
-                )}`}
+                className={`inline-flex items-center mt-2 px-3 py-1 rounded-full text-xs font-semibold border ${memberEstadoConfig.className}`}
               >
-                {memberStateLabel}
+                <memberEstadoConfig.Icon className="w-4 h-4 mr-1" />
+                {memberEstadoConfig.label}
               </p>
             )}
           </div>

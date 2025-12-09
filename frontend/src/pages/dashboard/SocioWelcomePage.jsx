@@ -3,13 +3,44 @@ import { useAuthStore } from '../../store/authStore';
 import {
   User,
   IdCard,
-  Phone,
-  MapPin,
-  Calendar,
   BadgeCheck,
+  PauseCircle,
+  Ban,
+  Info,
   ArrowRightCircle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const getEstadoConfig = (estado) => {
+  const normalized = estado?.toLowerCase();
+
+  switch (normalized) {
+    case 'activo':
+      return {
+        label: 'Activo',
+        className: 'bg-green-100 text-green-700 border-green-300',
+        Icon: BadgeCheck
+      };
+    case 'inactivo':
+      return {
+        label: 'Inactivo',
+        className: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+        Icon: PauseCircle
+      };
+    case 'suspendido':
+      return {
+        label: 'Suspendido',
+        className: 'bg-red-100 text-red-700 border-red-300',
+        Icon: Ban
+      };
+    default:
+      return {
+        label: estado ?? 'Sin estado',
+        className: 'bg-gray-100 text-gray-600 border-gray-300',
+        Icon: Info
+      };
+  }
+};
 
 export default function SocioWelcomePage() {
   const user = useAuthStore((state) => state.user);
@@ -20,13 +51,18 @@ export default function SocioWelcomePage() {
     return fullName || 'Bienvenido';
   }, [user]);
 
-  const estado = user?.estado?.toLowerCase() || (user?.active ? 'activo' : 'inactivo');
+  const memberStateLabel = useMemo(() => {
+    if (!user) return null;
+    if (user.member_state_label) return user.member_state_label;
+    if (user.estado) return user.estado;
+    if (user.active !== undefined) return user.active ? 'Activo' : 'Inactivo';
+    return null;
+  }, [user]);
 
-  const estadoStyle = {
-    activo: 'bg-green-100 text-green-700 border-green-300',
-    inactivo: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-    suspendido: 'bg-red-100 text-red-700 border-red-300'
-  }[estado] || 'bg-gray-100 text-gray-600 border-gray-300';
+  const estadoConfig = useMemo(
+    () => getEstadoConfig(memberStateLabel),
+    [memberStateLabel]
+  );
 
   return (
     <div className="space-y-6">
@@ -38,12 +74,14 @@ export default function SocioWelcomePage() {
         </p>
 
         {/* BADGE DE ESTADO */}
-        <div
-          className={`inline-flex items-center mt-4 px-3 py-1 rounded-full text-sm font-semibold border ${estadoStyle}`}
-        >
-          <BadgeCheck className="w-4 h-4 mr-1" />
-          {estado.charAt(0).toUpperCase() + estado.slice(1)}
-        </div>
+        {estadoConfig.label && (
+          <div
+            className={`inline-flex items-center mt-4 px-3 py-1 rounded-full text-sm font-semibold border ${estadoConfig.className}`}
+          >
+            <estadoConfig.Icon className="w-4 h-4 mr-1" />
+            {estadoConfig.label}
+          </div>
+        )}
       </div>
 
       {/* ACCESOS RÁPIDOS */}
